@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.com.google.devtools.ksp)
+    alias(libs.plugins.com.google.dagger.hilt.android)
 }
 
 android {
@@ -42,6 +44,17 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.jsoup)
+
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.room.compiler)
+    annotationProcessor(libs.androidx.room.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    implementation("com.google.dagger:hilt-android:2.56.2")
+    ksp("com.google.dagger:hilt-compiler:2.56.2")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
