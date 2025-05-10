@@ -52,8 +52,8 @@ dependencies {
     annotationProcessor(libs.androidx.room.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    implementation("com.google.dagger:hilt-android:2.56.2")
-    ksp("com.google.dagger:hilt-compiler:2.56.2")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
 
     implementation(libs.androidx.core.ktx)
