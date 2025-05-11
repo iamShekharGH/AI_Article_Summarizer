@@ -18,7 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleHomeScreen
+import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.SavedArticlesScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.searchScreen.LocalSearchScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.settings.SettingsScreen
@@ -55,7 +55,7 @@ fun HomeScreenNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Destinations.MainHome) {
         navigation<Destinations.MainHome>(startDestination = Destinations.Home) {
 
-            composable<Destinations.Home> { MainArticleHomeScreen() }
+            composable<Destinations.Home> { MainArticleListScreen() }
             composable<Destinations.Search> { MainArticleInputScreen() }
             composable<Destinations.List> { LocalSearchScreen(onArticleClick = {}, query = "", onQueryChange = { }) }
             composable<Destinations.LocalSearch> { SavedArticlesScreen() }
