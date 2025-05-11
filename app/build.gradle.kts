@@ -3,8 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
-    alias(libs.plugins.com.google.devtools.ksp)
+//    alias(libs.plugins.com.google.devtools.ksp)
     alias(libs.plugins.com.google.dagger.hilt.android)
+    alias(libs.plugins.kotlinSerialization)
+    id("kotlin-kapt")
 }
 
 android {
@@ -47,13 +49,19 @@ dependencies {
 
     implementation(libs.jsoup)
 
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+
     implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.room.compiler)
-    annotationProcessor(libs.androidx.room.room.compiler)
+//    ksp(libs.androidx.room.room.compiler)
+    //noinspection KaptUsageInsteadOfKsp
+    kapt(libs.androidx.room.room.compiler)
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    kapt(libs.hilt.compiler)
 
 
     implementation(libs.androidx.core.ktx)
@@ -65,6 +73,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.material)
     implementation(libs.generativeai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
