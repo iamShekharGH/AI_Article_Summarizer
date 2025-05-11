@@ -3,10 +3,8 @@ package com.shekharhandigol.aiarticlesummarizer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
+import com.shekharhandigol.aiarticlesummarizer.ui.homeScreen.HomeScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.theme.AIArticleSummarizerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,15 +14,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AIArticleSummarizerTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-
-                    ) {
-                    BakingScreen()
-                }
+                val navController = rememberNavController()
+                HomeScreen(navController)
             }
         }
     }
 }
+
