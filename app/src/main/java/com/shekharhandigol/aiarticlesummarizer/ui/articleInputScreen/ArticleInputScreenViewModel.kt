@@ -16,7 +16,8 @@ class ArticleInputScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _summaryText = MutableStateFlow("Your Results will show up here.")
+    private val _summaryText =
+        MutableStateFlow<ArticleInputScreenUIState>(ArticleInputScreenUIState.Initial(text = "Your Results will show up here."))
     val summaryText = _summaryText.asStateFlow()
 
     fun summarizeText(text: String) {
@@ -24,22 +25,58 @@ class ArticleInputScreenViewModel @Inject constructor(
             repository.summarizeArticle(url = text).collect { result ->
                 when (result) {
                     is Result.Error -> {
-                        _summaryText.value = result.exception.message ?: "Unknown error"
+                        _summaryText.value = ArticleInputScreenUIState.Error(
+                            result.exception.message ?: "Unknown error"
+                        )
                     }
 
                     Result.Loading -> {
-                        _summaryText.value = "Loading..."
+                        _summaryText.value = ArticleInputScreenUIState.Loading
                     }
 
                     is Result.Success -> {
-                        _summaryText.value = result.data
+                        _summaryText.value =
+                            ArticleInputScreenUIState.Success(result.data1, result.data2)
                     }
 
                     is Result.PartialSuccess -> {
-                        _summaryText.value = result.data
+                        _summaryText.value =
+                            ArticleInputScreenUIState.Success(result.data1, result.data2)
                     }
                 }
             }
         }
     }
+
+    fun saveArticleToDb(url: String, summary: String, title: String) {
+        viewModelScope.launch {
+            repository.insertArticle(url = url, summary = summary, title = title)
+                .collect { result ->
+                    when (result) {
+                        is Result.Error -> {
+                            _summaryText.value = ArticleInputScreenUIState.Error(
+                                result.exception.message ?: "Unknown error"
+                            )
+                        }
+
+                        Result.Loading -> {
+                            _summaryText.value = ArticleInputScreenUIState.Loading
+
+                        }
+
+                        is Result.PartialSuccess, is Result.Success -> {
+                            _summaryText.value =
+                                ArticleInputScreenUIState.Initial(text = "Article saved!")
+                        }
+                    }
+                }
+        }
+    }
+}
+
+sealed class ArticleInputScreenUIState {
+    data class Initial(val text: String) : ArticleInputScreenUIState()
+    data class Success(val title: String, val description: String) : ArticleInputScreenUIState()
+    data class Error(val text: String) : ArticleInputScreenUIState()
+    data object Loading : ArticleInputScreenUIState()
 }
