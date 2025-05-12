@@ -11,6 +11,7 @@ data class Article(
     val articleId: Int = 0,
     val title: String,
     val articleUrl: String,
+    val favouriteArticles: Boolean = false,
     val date: Long = System.currentTimeMillis()
 )
 

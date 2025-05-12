@@ -12,6 +12,6 @@ interface SummaryDao {
     suspend fun getSummariesForArticle(articleId: Int): List<Summary>
 
     @Insert
-    suspend fun insertSummary(summary: Summary): Long // Returns the row ID of the inserted item
+    suspend fun insertSummary(summary: Summary): Long
 
 }

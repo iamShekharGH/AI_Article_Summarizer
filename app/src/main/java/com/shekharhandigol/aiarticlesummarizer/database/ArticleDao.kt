@@ -14,6 +14,9 @@ interface ArticleDao {
     @Query("SELECT * FROM $DATABASE_NAME")
     fun getAllArticles(): List<Article>
 
+    @Query("SELECT * FROM $DATABASE_NAME WHERE favouriteArticles = 1")
+    fun getAllFavoriteArticles(): List<Article>
+
     @Query("SELECT * FROM $DATABASE_NAME WHERE articleId = :articleId")
     suspend fun getArticleById(articleId: Int): Article?
 
@@ -29,6 +32,13 @@ interface ArticleDao {
     @Transaction
     @Query("SELECT * FROM $DATABASE_NAME WHERE articleId = :articleId")
     suspend fun getArticleWithSummaries(articleId: Int): ArticleWithSummaries?
+
+
+    @Query("UPDATE $DATABASE_NAME SET favouriteArticles = 1 WHERE articleId = :articleId")
+    fun favouriteThisArticle(articleId: Int)
+
+    @Query("UPDATE $DATABASE_NAME SET favouriteArticles = 0 WHERE articleId = :articleId")
+    fun removeFavouriteFromThisArticle(articleId: Int)
 
 }
 
