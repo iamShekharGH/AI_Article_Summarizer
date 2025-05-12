@@ -97,42 +97,6 @@ class AiArticleSummarizerRepository @Inject constructor(
         }
     }
 
-    fun insertArticle(url: String, summary: String, title: String): Flow<Result<Unit>> = flow {
-        emit(Result.Loading)
-        try {
-            articleDao.insertArticle(
-                Article(
-                    articleUrl = url,
-                    title = title
-                )
-            )
-            emit(Result.Success(Unit))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
-        }
-    }
-
-    fun insertArticle(article: Article): Flow<Result<Unit>> = flow {
-        emit(Result.Loading)
-        try {
-            articleDao.insertArticle(article)
-            emit(Result.Success(Unit))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
-        }
-    }
-
-
-    fun getArticleById(articleId: Int): Flow<Result<ArticleWithSummaries?>> = flow {
-        emit(Result.Loading)
-        try {
-            val articleWithSummaries = articleDao.getArticleWithSummaries(articleId)
-            emit(Result.Success(articleWithSummaries))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
-        }
-    }
-
     fun getAllArticles(): Flow<Result<List<Article>>> = flow {
         emit(Result.Loading)
         try {
@@ -199,11 +163,17 @@ class AiArticleSummarizerRepository @Inject constructor(
     }
 
 
-    suspend fun deleteArticle(article: Article) = articleDao.deleteArticle(article)
+    fun searchArticles(query: String): Flow<Result<List<Article>>> = flow {
+        emit(Result.Loading)
+        try {
+            val articles = articleDao.searchArticles(query)
+            emit(Result.Success(articles))
+        } catch (e: Exception) {
+            emit(Result.Error(e))
+        }
+    }
 
     suspend fun deleteArticleById(articleId: Int) = articleDao.deleteArticleById(articleId)
-
-    suspend fun insertSummary(summary: Summary) = summaryDao.insertSummary(summary)
 
 }
 

@@ -40,6 +40,9 @@ interface ArticleDao {
     @Query("UPDATE $DATABASE_NAME SET favouriteArticles = 0 WHERE articleId = :articleId")
     fun removeFavouriteFromThisArticle(articleId: Int)
 
+    @Query("SELECT * FROM $DATABASE_NAME WHERE title LIKE '%' || :query || '%' OR articleUrl LIKE '%' || :query || '%'")
+    fun searchArticles(query: String): List<Article>
+
 }
 
 
