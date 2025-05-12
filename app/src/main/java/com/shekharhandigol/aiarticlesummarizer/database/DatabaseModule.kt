@@ -28,4 +28,9 @@ object DatabaseModule {
     fun providesDao(database: AppDatabase): ArticleDao {
         return database.articleDao()
     }
+
+    @Provides
+    fun providesSummaryDao(database: AppDatabase): SummaryDao {
+        return database.summaryDao()
+    }
 }
