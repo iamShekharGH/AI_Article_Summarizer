@@ -2,6 +2,7 @@ package com.shekharhandigol.aiarticlesummarizer.ui.homeScreen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -44,77 +45,15 @@ fun BottomNavigationBar(navController: NavController) {
                 }
             )
         }
-
-        /*NavigationBarItem(
-            icon = {
-                Icon(
-                    Icons.Filled.Home,
-                    contentDescription = "Saved Articles"
-                )
-            },
-            label = { Text("Home") },
-            selected = false,
-            onClick = {
-                navController.navigate(Destinations.Saved) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            })
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Search, contentDescription = "Home") },
-            label = { Text("Search") },
-            selected = true, // Assuming this is the current screen
-            onClick = {
-                navController.navigate(Destinations.Home) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Home") },
-            label = { Text("List") },
-            selected = true, // Assuming this is the current screen
-            onClick = {
-                navController.navigate(Destinations.List) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-        )
-
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
-            label = { Text("Settings") },
-            selected = false,
-            onClick = {
-                navController.navigate(Destinations.Settings) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-        )*/
     }
 }
 
 sealed class BottomNavigationBarDestination(val route: String) {
     data object Home : BottomNavigationBarDestination("home")
     data object Search : BottomNavigationBarDestination("search")
+    data object List : BottomNavigationBarDestination("list")
     data object Saved : BottomNavigationBarDestination("saved")
     data object Settings : BottomNavigationBarDestination("settings")
-    data object List : BottomNavigationBarDestination("list")
 }
 
 data class BottomNavItem(
@@ -145,7 +84,7 @@ val bottomNavItems = listOf(
     ),
     BottomNavItem(
         "Local Search",
-        Icons.Filled.Search,
+        Icons.Filled.Favorite,
         BottomNavigationBarDestination.Home.route,
         Destinations.LocalSearch
     ),
