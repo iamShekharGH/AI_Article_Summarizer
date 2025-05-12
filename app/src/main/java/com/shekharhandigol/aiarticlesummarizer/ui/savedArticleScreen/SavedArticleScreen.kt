@@ -21,7 +21,7 @@ import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
 
 @Composable
 fun MainSavedArticlesScreen(
-    onArticleClick: (Int) -> Unit = {},
+    onArticleClick: (Int) -> Unit,
 ) {
 
     val viewModel = hiltViewModel<SavedArticleScreenViewModel>()

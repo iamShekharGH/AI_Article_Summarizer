@@ -22,7 +22,7 @@ class SavedArticleScreenViewModel @Inject constructor(
 
     fun getArticlesFromDb() {
         viewModelScope.launch(Dispatchers.IO) {
-            articleRepository.getAllArticles().collect { articles ->
+            articleRepository.getAllFavoriteArticles().collect { articles ->
                 when (articles) {
                     is Result.Error -> {
                         _uiState.value = SavedArticleScreenUiStates.Error
