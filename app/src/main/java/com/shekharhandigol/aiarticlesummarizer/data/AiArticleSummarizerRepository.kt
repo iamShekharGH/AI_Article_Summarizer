@@ -144,6 +144,38 @@ class AiArticleSummarizerRepository @Inject constructor(
         }
     }
 
+    fun getAllFavoriteArticles(): Flow<Result<List<Article>>> = flow {
+        emit(Result.Loading)
+        try {
+            val articles = articleDao.getAllFavoriteArticles()
+            emit(Result.Success(articles))
+        } catch (e: Exception) {
+            emit(Result.Error(e))
+        }
+    }
+
+    fun favouriteThisArticle(articleId: Int, currentFavouriteState: Boolean) {
+        if (currentFavouriteState) {
+            articleDao.removeFavouriteFromThisArticle(articleId)
+        } else {
+            articleDao.favouriteThisArticle(articleId)
+        }
+    }
+
+    fun getArticleWithSummaries(articleId: Int): Flow<Result<ArticleWithSummaries>> = flow {
+        emit(Result.Loading)
+        try {
+            val articleWithSummary = articleDao.getArticleWithSummaries(articleId)
+            if (articleWithSummary == null) {
+                emit(Result.Error(Exception("Article not found")))
+                return@flow
+            }
+            emit(Result.Success(articleWithSummary))
+        } catch (e: Exception) {
+            emit(Result.Error(e))
+        }
+    }
+
     fun insertArticleWithSummary(
         url: String, title: String, summary: String
     ): Flow<Result<Long>> = flow {
@@ -167,17 +199,13 @@ class AiArticleSummarizerRepository @Inject constructor(
         }
     }
 
+
     suspend fun deleteArticle(article: Article) = articleDao.deleteArticle(article)
 
     suspend fun deleteArticleById(articleId: Int) = articleDao.deleteArticleById(articleId)
 
-    suspend fun getArticleWithSummaries(articleId: Int) =
-        articleDao.getArticleWithSummaries(articleId)
-
-    suspend fun getSummariesForArticle(articleId: Int) =
-        summaryDao.getSummariesForArticle(articleId)
-
     suspend fun insertSummary(summary: Summary) = summaryDao.insertSummary(summary)
+
 }
 
 sealed class Result<out T> {
