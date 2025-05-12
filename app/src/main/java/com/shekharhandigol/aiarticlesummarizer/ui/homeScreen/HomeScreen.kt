@@ -30,7 +30,7 @@ import androidx.navigation.compose.navigation
 import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.MainSavedArticlesScreen
+import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.MainFavouriteArticlesScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.searchScreen.LocalSearchScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.settings.SettingsScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.SummaryScreen
@@ -157,7 +157,7 @@ fun HomeScreenNavHost(
                     query = "",
                     onQueryChange = { })
             }
-            composable<Destinations.LocalSearch> { MainSavedArticlesScreen(onArticleClick) }
+            composable<Destinations.FavouriteList> { MainFavouriteArticlesScreen(onArticleClick) }
             composable<Destinations.Settings> { SettingsScreen() }
         }
 

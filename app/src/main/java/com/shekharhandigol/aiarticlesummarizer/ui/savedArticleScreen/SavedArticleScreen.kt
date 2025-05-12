@@ -20,7 +20,7 @@ import com.shekharhandigol.aiarticlesummarizer.ui.common.ErrorUi
 import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
 
 @Composable
-fun MainSavedArticlesScreen(
+fun MainFavouriteArticlesScreen(
     onArticleClick: (Int) -> Unit,
 ) {
 
@@ -42,7 +42,7 @@ fun MainSavedArticlesScreen(
         }
 
         is SavedArticleScreenUiStates.Success -> {
-            SavedArticlesScreen(
+            FavouriteArticlesScreen(
                 articles = state.articles,
                 onArticleClick = onArticleClick,
                 deleteArticleById = { viewModel.deleteArticleById(it) }
@@ -54,7 +54,7 @@ fun MainSavedArticlesScreen(
 }
 
 @Composable
-fun SavedArticlesScreen(
+fun FavouriteArticlesScreen(
     articles: List<Article> = emptyList(),
     onArticleClick: (Int) -> Unit = {},
     deleteArticleById: (Article) -> Unit
@@ -108,7 +108,7 @@ fun PreviewSavedArticlesScreenWithData() {
         )
 
     )
-    SavedArticlesScreen(
+    FavouriteArticlesScreen(
         articles = dummyArticles,
         onArticleClick = {},
         deleteArticleById = { }
@@ -118,7 +118,7 @@ fun PreviewSavedArticlesScreenWithData() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewSavedArticlesScreenEmpty() {
-    SavedArticlesScreen(
+    FavouriteArticlesScreen(
         articles = emptyList(),
         onArticleClick = {},
         deleteArticleById = { }

@@ -21,19 +21,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 fun BottomNavigationBar(navController: NavController) {
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-//navController.currentDestination?.route == item.destinations.toString(),
-        //currentDestination == item.destinations
+        val currentRoute = navBackStackEntry?.destination?.route
 
         bottomNavItems.forEach { item ->
-            println("item.destinations.toString(): ${item.destinations}")
-            println("navController.currentDestination: ${navController.currentDestination}")
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
-                selected = currentDestination?.toString()
-                    ?.contains("." + item.destinations.toString())
-                    ?: false,
+                selected = currentRoute?.contains("." + item.destinations.toString()) ?: false,
                 onClick = {
                     navController.navigate(item.destinations) {
                         popUpTo(navController.graph.startDestinationId) {
@@ -48,18 +42,9 @@ fun BottomNavigationBar(navController: NavController) {
     }
 }
 
-sealed class BottomNavigationBarDestination(val route: String) {
-    data object Home : BottomNavigationBarDestination("home")
-    data object Search : BottomNavigationBarDestination("search")
-    data object List : BottomNavigationBarDestination("list")
-    data object Saved : BottomNavigationBarDestination("saved")
-    data object Settings : BottomNavigationBarDestination("settings")
-}
-
 data class BottomNavItem(
     val label: String,
     val icon: ImageVector,
-    val route: String,
     val destinations: Destinations
 )
 
@@ -67,31 +52,26 @@ val bottomNavItems = listOf(
     BottomNavItem(
         "Home",
         Icons.Filled.Home,
-        BottomNavigationBarDestination.Saved.route,
         Destinations.Home
     ),
     BottomNavItem(
         "Search",
         Icons.Filled.Search,
-        BottomNavigationBarDestination.Search.route,
         Destinations.Search
     ),
     BottomNavItem(
         "List",
         Icons.AutoMirrored.Filled.List,
-        BottomNavigationBarDestination.List.route,
         Destinations.List
     ),
     BottomNavItem(
         "Local Search",
         Icons.Filled.Favorite,
-        BottomNavigationBarDestination.Home.route,
-        Destinations.LocalSearch
+        Destinations.FavouriteList
     ),
     BottomNavItem(
         "Settings",
         Icons.Filled.Settings,
-        BottomNavigationBarDestination.Settings.route,
         Destinations.Settings
     )
 )

@@ -21,5 +21,5 @@ sealed class Destinations {
     data object Search : Destinations()
 
     @Serializable
-    data object LocalSearch : Destinations()
+    data object FavouriteList : Destinations()
 }
