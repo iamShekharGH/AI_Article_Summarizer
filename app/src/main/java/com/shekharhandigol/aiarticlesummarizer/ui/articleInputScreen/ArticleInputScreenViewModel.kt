@@ -17,7 +17,7 @@ class ArticleInputScreenViewModel @Inject constructor(
 
 
     private val _summaryText =
-        MutableStateFlow<ArticleInputScreenUIState>(ArticleInputScreenUIState.Initial(text = "Your Results will show up here."))
+        MutableStateFlow<ArticleInputScreenUIState>(ArticleInputScreenUIState.Initial(text = "Your Results Status will show up here."))
     val summaryText = _summaryText.asStateFlow()
 
     fun summarizeText(text: String) {
@@ -36,12 +36,10 @@ class ArticleInputScreenViewModel @Inject constructor(
 
                     is Result.Success -> {
                         _summaryText.value =
-                            ArticleInputScreenUIState.Success(result.data1, result.data2)
-                    }
-
-                    is Result.PartialSuccess -> {
-                        _summaryText.value =
-                            ArticleInputScreenUIState.Success(result.data1, result.data2)
+                            ArticleInputScreenUIState.UrlSummarisedSuccessfully(
+                                result.data.first,
+                                result.data.second
+                            )
                     }
                 }
             }
@@ -50,7 +48,7 @@ class ArticleInputScreenViewModel @Inject constructor(
 
     fun saveArticleToDb(url: String, summary: String, title: String) {
         viewModelScope.launch {
-            repository.insertArticle(url = url, summary = summary, title = title)
+            repository.insertArticleWithSummary(url = url, title = title, summary = summary)
                 .collect { result ->
                     when (result) {
                         is Result.Error -> {
@@ -64,9 +62,9 @@ class ArticleInputScreenViewModel @Inject constructor(
 
                         }
 
-                        is Result.PartialSuccess, is Result.Success -> {
+                        is Result.Success -> {
                             _summaryText.value =
-                                ArticleInputScreenUIState.Initial(text = "Article saved!")
+                                ArticleInputScreenUIState.SavedToDbSuccessfully(result.data)
                         }
                     }
                 }
@@ -76,7 +74,10 @@ class ArticleInputScreenViewModel @Inject constructor(
 
 sealed class ArticleInputScreenUIState {
     data class Initial(val text: String) : ArticleInputScreenUIState()
-    data class Success(val title: String, val description: String) : ArticleInputScreenUIState()
+    data class UrlSummarisedSuccessfully(val title: String, val description: String) :
+        ArticleInputScreenUIState()
+
+    data class SavedToDbSuccessfully(val id: Long) : ArticleInputScreenUIState()
     data class Error(val text: String) : ArticleInputScreenUIState()
     data object Loading : ArticleInputScreenUIState()
 }

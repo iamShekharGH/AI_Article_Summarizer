@@ -34,11 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shekharhandigol.aiarticlesummarizer.database.Article
+import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
+import com.shekharhandigol.aiarticlesummarizer.database.Summary
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun MainArticleInputScreen() {
+fun MainArticleInputScreen(
+    onArticleClick: (Int) -> Unit,
+    showJustSummarizedText: (ArticleWithSummaries) -> Unit
+) {
     val viewModel: ArticleInputScreenViewModel = hiltViewModel()
     val screenState = viewModel.summaryText.collectAsStateWithLifecycle()
 
@@ -47,7 +53,9 @@ fun MainArticleInputScreen() {
         saveArticleToDb = { url, summary, title ->
             viewModel.saveArticleToDb(url, title, summary)
         },
-        screenState.value
+        screenState.value,
+        onArticleClick,
+        showJustSummarizedText
     )
 
 
@@ -58,6 +66,8 @@ fun ArticleInputScreen(
     onSummarize: (String) -> Unit,
     saveArticleToDb: (String, String, String) -> Unit = { _, _, _ -> },
     screenStateValue: ArticleInputScreenUIState,
+    onArticleClick: (Int) -> Unit,
+    showJustSummarizedText: (ArticleWithSummaries) -> Unit,
     ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -118,16 +128,31 @@ fun ArticleInputScreen(
             ) {
                 Text("Summarize")
             }
+            var resultText = ""
+            when (screenStateValue) {
+                is ArticleInputScreenUIState.Error -> {
+                    resultText = screenStateValue.text
+                }
+
+                is ArticleInputScreenUIState.Initial -> {
+                    resultText = screenStateValue.text
+                }
+
+                ArticleInputScreenUIState.Loading -> {
+                    resultText = "Loading..."
+                }
+
+                is ArticleInputScreenUIState.SavedToDbSuccessfully -> {
+                    onArticleClick(screenStateValue.id.toInt())
+                }
+
+                is ArticleInputScreenUIState.UrlSummarisedSuccessfully -> {
+                    showSaveDialog = true
+                    resultText = screenStateValue.title + "\n" + screenStateValue.description
+                }
+            }
             Text(
-                text = when (screenStateValue) {
-                    is ArticleInputScreenUIState.Error -> screenStateValue.text
-                    is ArticleInputScreenUIState.Initial -> screenStateValue.text
-                    ArticleInputScreenUIState.Loading -> "Loading..."
-                    is ArticleInputScreenUIState.Success -> {
-                        showSaveDialog = true
-                        screenStateValue.title + "\n" + screenStateValue.description
-                    }
-                },
+                text = resultText,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 16.dp)
@@ -141,7 +166,7 @@ fun ArticleInputScreen(
                 text = { Text("Do you want to save this summarized article?") },
                 confirmButton = {
                     Button(onClick = {
-                        if (screenStateValue is ArticleInputScreenUIState.Success) {
+                        if (screenStateValue is ArticleInputScreenUIState.UrlSummarisedSuccessfully) {
                             saveArticleToDb(
                                 url,
                                 screenStateValue.title,
@@ -161,7 +186,26 @@ fun ArticleInputScreen(
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { showSaveDialog = false }) {
+                    Button(onClick = {
+                        showSaveDialog = false
+                        showJustSummarizedText(
+                            ArticleWithSummaries(
+                                article = Article(
+                                    title = (screenStateValue as ArticleInputScreenUIState.UrlSummarisedSuccessfully).title,
+                                    articleUrl = url,
+                                    favouriteArticles = false
+                                ),
+                                summaries = listOf(
+                                    Summary(
+                                        summaryText = screenStateValue.description,
+                                        summaryId = -1,
+                                        articleId = -1,
+                                    )
+                                )
+                            )
+                        )
+
+                    }) {
                         Text("Cancel")
                     }
                 }
@@ -176,8 +220,10 @@ fun ArticleInputScreen(
 @Composable
 fun PreviewArticleInputScreen() {
     ArticleInputScreen(
-        onSummarize = { /* Dummy summarize action */ },
-        saveArticleToDb = { _, _, _ -> /* Dummy save action */ },
-        screenStateValue = ArticleInputScreenUIState.Initial("Your Results will show up here.")
+        onSummarize = { },
+        saveArticleToDb = { _, _, _ -> },
+        screenStateValue = ArticleInputScreenUIState.Initial("Your Results will show up here."),
+        onArticleClick = {},
+        showJustSummarizedText = {},
     )
 }
