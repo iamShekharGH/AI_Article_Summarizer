@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.MainSavedArticlesScreen
@@ -68,7 +69,8 @@ fun HomeScreen(navController: NavHostController) {
         Surface(modifier = Modifier.padding(paddingValues)) {
             HomeScreenNavHost(
                 navController = navController,
-                onArticleClick = viewModel::getArticleWithSummaries
+                onArticleClick = viewModel::getArticleWithSummaries,
+                showJustSummarizedText = viewModel::showJustSummarizedText
             )
         }
         when (val state = homeScreenUiStates) {
@@ -107,9 +109,24 @@ fun HomeScreen(navController: NavHostController) {
                 )
             }
 
+            is HomeScreenUiStates.ShowLavarisArticle -> {
+                SummaryScreen(
+                    articleWithSummaries = state.articleWithSummaries,
+                    sheetState = sheetState,
+                    onDismiss = {
+                        scope.launch { sheetState.hide() }
+                        viewModel.resetState()
+                    },
+                    addToFavorites = { _, _ -> },
+                    showFavoriteButton = false
+                )
+            }
+
             HomeScreenUiStates.Idle -> {
 
             }
+
+
         }
 
 
@@ -120,13 +137,19 @@ fun HomeScreen(navController: NavHostController) {
 @Composable
 fun HomeScreenNavHost(
     navController: NavHostController,
-    onArticleClick: (Int) -> Unit
+    onArticleClick: (Int) -> Unit,
+    showJustSummarizedText: (ArticleWithSummaries) -> Unit
 ) {
     NavHost(navController = navController, startDestination = Destinations.MainHome) {
         navigation<Destinations.MainHome>(startDestination = Destinations.Home) {
 
             composable<Destinations.Home> { MainArticleListScreen(onArticleClick) }
-            composable<Destinations.Search> { MainArticleInputScreen(onArticleClick) }
+            composable<Destinations.Search> {
+                MainArticleInputScreen(
+                    onArticleClick,
+                    showJustSummarizedText
+                )
+            }
             composable<Destinations.List> {
                 LocalSearchScreen(
                     onArticleClick = onArticleClick,

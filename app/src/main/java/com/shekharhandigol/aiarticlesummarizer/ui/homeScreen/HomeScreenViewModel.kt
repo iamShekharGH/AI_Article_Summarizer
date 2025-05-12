@@ -52,6 +52,10 @@ class HomeScreenViewModel @Inject constructor(
             aiArticleSummarizerRepository.favouriteThisArticle(articleId, currentFavouriteState)
         }
     }
+
+    fun showJustSummarizedText(articleWithSummaries: ArticleWithSummaries) {
+        _articleWithSummaries.value = HomeScreenUiStates.ShowLavarisArticle(articleWithSummaries)
+    }
 }
 
 sealed interface HomeScreenUiStates {
@@ -59,5 +63,7 @@ sealed interface HomeScreenUiStates {
     data object Idle : HomeScreenUiStates
     data object Error : HomeScreenUiStates
     data class Success(val articleWithSummaries: ArticleWithSummaries) : HomeScreenUiStates
+    data class ShowLavarisArticle(val articleWithSummaries: ArticleWithSummaries) :
+        HomeScreenUiStates
 
 }
