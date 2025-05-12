@@ -153,9 +153,8 @@ fun HomeScreenNavHost(
             composable<Destinations.List> {
                 LocalSearchScreen(
                     onArticleClick = onArticleClick,
-                    onDeleteClick = {},
-                    query = "",
-                    onQueryChange = { })
+                    onDeleteClick = {}
+                )
             }
             composable<Destinations.FavouriteList> { MainFavouriteArticlesScreen(onArticleClick) }
             composable<Destinations.Settings> { SettingsScreen() }
