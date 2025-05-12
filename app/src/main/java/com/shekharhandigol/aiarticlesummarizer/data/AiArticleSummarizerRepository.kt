@@ -81,11 +81,10 @@ class AiArticleSummarizerRepository @Inject constructor(
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                Pair("Error fetching URL: ${e.message}", "Error fetching URL: ${e.message}")
-//                "Error fetching URL: ${e.message}"
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
-                Pair("Error fetching URL: ", "${e.message}")
+                throw e
             }
         }
     }
