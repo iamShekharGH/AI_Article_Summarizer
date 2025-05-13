@@ -71,6 +71,6 @@ class AiArticleSummarizerRepository @Inject constructor(
         settingsDataSource.saveGeminiModel(modelName)
     }
 
-    fun geminiModelNameFlow(): Flow<String> = settingsDataSource.geminiModelNameFlow()
+    fun geminiModelNameFlow(): Flow<GeminiModelName> = settingsDataSource.geminiModelNameFlow()
 
 }
