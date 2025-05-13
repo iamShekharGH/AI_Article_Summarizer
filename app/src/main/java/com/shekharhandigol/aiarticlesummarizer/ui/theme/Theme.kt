@@ -269,10 +269,8 @@ fun AIArticleSummarizerTheme(
         else -> lightScheme
     }
 
-    val white = lightScheme
-
     MaterialTheme(
-        colorScheme = white,
+        colorScheme = colorScheme,
         typography = AppTypography,
         content = content
     )
