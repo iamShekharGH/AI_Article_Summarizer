@@ -30,5 +30,5 @@ class SettingsDataSource @Inject constructor(
         datastoreDao.setGeminiModelName(modelName)
     }
 
-    fun geminiModelNameFlow(): Flow<String> = datastoreDao.geminiModelNameFlow
+    fun geminiModelNameFlow(): Flow<GeminiModelName> = datastoreDao.geminiModelNameFlow
 }
