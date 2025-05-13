@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.shekharhandigol.aiarticlesummarizer.SharedUrl
 import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
@@ -39,7 +40,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, url: SharedUrl) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val sheetState = rememberModalBottomSheetState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -70,7 +71,8 @@ fun HomeScreen(navController: NavHostController) {
             HomeScreenNavHost(
                 navController = navController,
                 onArticleClick = viewModel::getArticleWithSummaries,
-                showJustSummarizedText = viewModel::showJustSummarizedText
+                showJustSummarizedText = viewModel::showJustSummarizedText,
+                url
             )
         }
         when (val state = homeScreenUiStates) {
@@ -134,16 +136,18 @@ fun HomeScreen(navController: NavHostController) {
 fun HomeScreenNavHost(
     navController: NavHostController,
     onArticleClick: (Int) -> Unit,
-    showJustSummarizedText: (ArticleWithSummaries) -> Unit
+    showJustSummarizedText: (ArticleWithSummaries) -> Unit,
+    url: SharedUrl
 ) {
     NavHost(navController = navController, startDestination = Destinations.MainHome) {
-        navigation<Destinations.MainHome>(startDestination = Destinations.Home) {
+        navigation<Destinations.MainHome>(startDestination = if (url == SharedUrl.None) Destinations.Home else Destinations.Search) {
 
             composable<Destinations.Home> { MainArticleListScreen(onArticleClick) }
             composable<Destinations.Search> {
                 MainArticleInputScreen(
                     onArticleClick,
-                    showJustSummarizedText
+                    showJustSummarizedText,
+                    url
                 )
             }
             composable<Destinations.List> {
