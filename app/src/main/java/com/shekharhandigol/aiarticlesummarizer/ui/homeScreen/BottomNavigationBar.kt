@@ -65,7 +65,7 @@ val bottomNavItems = listOf(
         Destinations.List
     ),
     BottomNavItem(
-        "Favorite List",
+        "Favorite",
         Icons.Filled.Star,
         Destinations.FavouriteList
     ),
