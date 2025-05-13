@@ -32,7 +32,7 @@ import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticle
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.MainFavouriteArticlesScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.searchScreen.LocalSearchScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.settings.SettingsScreen
+import com.shekharhandigol.aiarticlesummarizer.ui.settings.MainSettingsScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.SummaryScreen
 import kotlinx.coroutines.launch
 
@@ -153,7 +153,7 @@ fun HomeScreenNavHost(
                 )
             }
             composable<Destinations.FavouriteList> { MainFavouriteArticlesScreen(onArticleClick) }
-            composable<Destinations.Settings> { SettingsScreen() }
+            composable<Destinations.Settings> { MainSettingsScreen() }
         }
 
     }

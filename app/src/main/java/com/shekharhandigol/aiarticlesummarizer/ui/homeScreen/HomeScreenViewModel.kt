@@ -2,8 +2,8 @@ package com.shekharhandigol.aiarticlesummarizer.ui.homeScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.AiArticleSummarizerRepository
-import com.shekharhandigol.aiarticlesummarizer.data.Result
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,15 +26,15 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             aiArticleSummarizerRepository.getArticleWithSummaries(articleId).collect { result ->
                 when (result) {
-                    is Result.Error -> {
+                    is AiSummariserResult.Error -> {
                         _articleWithSummaries.value = HomeScreenUiStates.Error
                     }
 
-                    Result.Loading -> {
+                    AiSummariserResult.Loading -> {
                         _articleWithSummaries.value = HomeScreenUiStates.Loading
                     }
 
-                    is Result.Success -> {
+                    is AiSummariserResult.Success -> {
                         _articleWithSummaries.value =
                             HomeScreenUiStates.Success(result.data)
                     }
