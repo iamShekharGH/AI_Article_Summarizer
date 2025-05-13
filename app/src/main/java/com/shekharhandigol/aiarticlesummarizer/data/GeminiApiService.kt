@@ -4,20 +4,30 @@ import android.graphics.Bitmap
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.shekharhandigol.aiarticlesummarizer.BuildConfig
+import com.shekharhandigol.aiarticlesummarizer.data.datastore.DatastoreDao
+import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GeminiApiService @Inject constructor() {
+class GeminiApiService @Inject constructor(
+    private val datastoreDao: DatastoreDao
+) {
 
-    private val generativeModel = GenerativeModel(
-        modelName = "gemini-1.5-flash",
-        apiKey = BuildConfig.apiKey
-    )
+    private suspend fun getSelectedModel(): GenerativeModel {
+        val modelNameValue = datastoreDao.geminiModelNameFlow.firstOrNull()?.value
+            ?: GeminiModelName.GEMINI_1_5_FLASH.value
+        return GenerativeModel(
+            modelName = modelNameValue,
+            apiKey = BuildConfig.apiKey
+        )
+    }
+
 
     suspend fun sendPromptWithImage(bitmap: Bitmap, prompt: String): String? {
         return try {
-            val response = generativeModel.generateContent(
+            val response = getSelectedModel().generateContent(
                 content {
                     image(bitmap)
                     text(prompt)
@@ -33,7 +43,7 @@ class GeminiApiService @Inject constructor() {
 
     suspend fun sendPrompt(prompt: String): String? {
         return try {
-            val response = generativeModel.generateContent(
+            val response = getSelectedModel().generateContent(
                 content {
                     text(prompt)
                 }
