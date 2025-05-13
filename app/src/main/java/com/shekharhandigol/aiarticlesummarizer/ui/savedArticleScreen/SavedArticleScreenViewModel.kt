@@ -2,8 +2,8 @@ package com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.AiArticleSummarizerRepository
-import com.shekharhandigol.aiarticlesummarizer.data.Result
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.database.Article
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,15 +24,15 @@ class SavedArticleScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             articleRepository.getAllFavoriteArticles().collect { articles ->
                 when (articles) {
-                    is Result.Error -> {
+                    is AiSummariserResult.Error -> {
                         _uiState.value = SavedArticleScreenUiStates.Error
                     }
 
-                    Result.Loading -> {
+                    AiSummariserResult.Loading -> {
                         _uiState.value = SavedArticleScreenUiStates.Loading
                     }
 
-                    is Result.Success -> {
+                    is AiSummariserResult.Success -> {
                         _uiState.value = SavedArticleScreenUiStates.Success(articles.data)
                     }
                 }

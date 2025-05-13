@@ -2,8 +2,8 @@ package com.shekharhandigol.aiarticlesummarizer.ui.searchScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.AiArticleSummarizerRepository
-import com.shekharhandigol.aiarticlesummarizer.data.Result
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.database.Article
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,15 +27,15 @@ class SearchScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             aiArticleSummarizerRepository.searchArticles(query).collect { articles ->
                 when (articles) {
-                    is Result.Error -> {
+                    is AiSummariserResult.Error -> {
                         _uiState.value = SearchScreenUiStates.Error
                     }
 
-                    Result.Loading -> {
+                    AiSummariserResult.Loading -> {
                         _uiState.value = SearchScreenUiStates.Loading
                     }
 
-                    is Result.Success -> {
+                    is AiSummariserResult.Success -> {
                         if (articles.data.isEmpty()) _uiState.value = SearchScreenUiStates.Error
                         else _uiState.value = SearchScreenUiStates.Success(articles.data)
                     }
