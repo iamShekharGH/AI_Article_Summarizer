@@ -2,8 +2,8 @@ package com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.AiArticleSummarizerRepository
-import com.shekharhandigol.aiarticlesummarizer.data.Result
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiSummariserResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,17 +24,17 @@ class ArticleInputScreenViewModel @Inject constructor(
         viewModelScope.launch {
             repository.summarizeArticle(url = text).collect { result ->
                 when (result) {
-                    is Result.Error -> {
+                    is AiSummariserResult.Error -> {
                         _summaryText.value = ArticleInputScreenUIState.Error(
                             result.exception.message ?: "Unknown error"
                         )
                     }
 
-                    Result.Loading -> {
+                    AiSummariserResult.Loading -> {
                         _summaryText.value = ArticleInputScreenUIState.Loading
                     }
 
-                    is Result.Success -> {
+                    is AiSummariserResult.Success -> {
                         _summaryText.value =
                             ArticleInputScreenUIState.UrlSummarisedSuccessfully(
                                 result.data.first,
@@ -51,18 +51,18 @@ class ArticleInputScreenViewModel @Inject constructor(
             repository.insertArticleWithSummary(url = url, title = title, summary = summary)
                 .collect { result ->
                     when (result) {
-                        is Result.Error -> {
+                        is AiSummariserResult.Error -> {
                             _summaryText.value = ArticleInputScreenUIState.Error(
                                 result.exception.message ?: "Unknown error"
                             )
                         }
 
-                        Result.Loading -> {
+                        AiSummariserResult.Loading -> {
                             _summaryText.value = ArticleInputScreenUIState.Loading
 
                         }
 
-                        is Result.Success -> {
+                        is AiSummariserResult.Success -> {
                             _summaryText.value =
                                 ArticleInputScreenUIState.SavedToDbSuccessfully(result.data)
                         }
