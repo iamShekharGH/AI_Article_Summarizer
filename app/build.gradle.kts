@@ -55,7 +55,8 @@ dependencies {
 
 
     implementation(libs.androidx.room.runtime)
-//    ksp(libs.androidx.room.room.compiler)
+    implementation(libs.androidx.ui.text.google.fonts)
+
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.room.compiler)
     implementation(libs.androidx.room.ktx)

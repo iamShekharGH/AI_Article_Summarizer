@@ -125,11 +125,7 @@ fun HomeScreen(navController: NavHostController) {
             HomeScreenUiStates.Idle -> {
 
             }
-
-
         }
-
-
     }
 }
 
