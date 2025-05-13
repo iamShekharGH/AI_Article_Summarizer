@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -16,6 +17,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -31,10 +33,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shekharhandigol.aiarticlesummarizer.SharedUrl
 import com.shekharhandigol.aiarticlesummarizer.database.Article
 import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
 import com.shekharhandigol.aiarticlesummarizer.database.Summary
@@ -44,7 +49,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainArticleInputScreen(
     onArticleClick: (Int) -> Unit,
-    showJustSummarizedText: (ArticleWithSummaries) -> Unit
+    showJustSummarizedText: (ArticleWithSummaries) -> Unit,
+    sharedUrl: SharedUrl
 ) {
     val viewModel: ArticleInputScreenViewModel = hiltViewModel()
     val screenState = viewModel.summaryText.collectAsStateWithLifecycle()
@@ -54,9 +60,11 @@ fun MainArticleInputScreen(
         saveArticleToDb = { url, summary, title ->
             viewModel.saveArticleToDb(url, title, summary)
         },
-        screenState.value,
-        onArticleClick,
-        showJustSummarizedText
+        screenStateValue = screenState.value,
+        onArticleClick = onArticleClick,
+        showJustSummarizedText = showJustSummarizedText,
+        sharedUrl = sharedUrl,
+        resetState = { viewModel.resetToInitial() }
     )
 
 
@@ -65,16 +73,23 @@ fun MainArticleInputScreen(
 @Composable
 fun ArticleInputScreen(
     onSummarize: (String) -> Unit,
-    saveArticleToDb: (String, String, String) -> Unit = { _, _, _ -> },
+    saveArticleToDb: (String, String, String) -> Unit,
     screenStateValue: ArticleInputScreenUIState,
     onArticleClick: (Int) -> Unit,
     showJustSummarizedText: (ArticleWithSummaries) -> Unit,
+    sharedUrl: SharedUrl = SharedUrl.None,
+    resetState: () -> Unit
     ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var showSaveDialog by remember { mutableStateOf(false) }
     var url by remember { mutableStateOf("") }
 
+    LaunchedEffect(sharedUrl) {
+        if (sharedUrl is SharedUrl.Url) {
+            url = sharedUrl.url
+        }
+    }
 
 
     Scaffold(
@@ -100,7 +115,10 @@ fun ArticleInputScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 trailingIcon = {
-                    IconButton(onClick = { url = "" }) {
+                    IconButton(onClick = {
+                        url = ""
+                        resetState()
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Close,
                             contentDescription = "clear text"
@@ -112,7 +130,7 @@ fun ArticleInputScreen(
                 }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
+            OutlinedButton(
                 onClick = {
                     onSummarize(url)
                     scope.launch {
@@ -125,7 +143,8 @@ fun ArticleInputScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = url.isNotBlank()
+                enabled = url.isNotBlank(),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text("Summarize")
             }
@@ -144,7 +163,9 @@ fun ArticleInputScreen(
                 }
 
                 is ArticleInputScreenUIState.SavedToDbSuccessfully -> {
-                    onArticleClick(screenStateValue.id.toInt())
+                    LaunchedEffect(Unit) {
+                        onArticleClick(screenStateValue.id.toInt())
+                    }
                 }
 
                 is ArticleInputScreenUIState.UrlSummarisedSuccessfully -> {
@@ -159,7 +180,9 @@ fun ArticleInputScreen(
                 text = resultText,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 16.dp)
+                    .padding(top = 16.dp),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
             )
         }
 
@@ -228,5 +251,6 @@ fun PreviewArticleInputScreen() {
         screenStateValue = ArticleInputScreenUIState.Initial("Your Results will show up here."),
         onArticleClick = {},
         showJustSummarizedText = {},
+        resetState = {}
     )
 }

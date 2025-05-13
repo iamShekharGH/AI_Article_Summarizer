@@ -70,6 +70,11 @@ class ArticleInputScreenViewModel @Inject constructor(
                 }
         }
     }
+
+    fun resetToInitial() {
+        _summaryText.value =
+            ArticleInputScreenUIState.Initial(text = "Your Results Status will show up here.")
+    }
 }
 
 sealed class ArticleInputScreenUIState {
