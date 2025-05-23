@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,7 +42,18 @@ fun LocalSearchScreen(
                 value = query,
                 onValueChange = { viewModel.onQueryChange(it) },
                 label = { Text("Search Articles") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = { viewModel.onQueryChange("") }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Empty Search",
+                        )
+                    }
+
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
             when (val state = viewModel.uiState.collectAsStateWithLifecycle().value) {
