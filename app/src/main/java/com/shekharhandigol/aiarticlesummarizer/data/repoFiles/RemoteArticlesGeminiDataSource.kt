@@ -3,6 +3,8 @@ package com.shekharhandigol.aiarticlesummarizer.data.repoFiles
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import com.shekharhandigol.aiarticlesummarizer.data.FULL_DETAILS_WITH_BULLET_POINTS
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
 import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_LARGE
 import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_MEDIUM
@@ -25,7 +27,7 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
     private val settingsDataSource: SettingsDataSource
 ) {
     fun summarizeArticleAndBitmap(
-        bitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+        bitmap: Bitmap = createBitmap(1, 1),
         url: String
     ): Flow<AiSummariserResult<String>> = flow {
         emit(AiSummariserResult.Loading)
@@ -49,6 +51,7 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             SummaryLength.SHORT -> SUMMARIZE_ARTICLE_PROMPT_SHORT
             SummaryLength.MEDIUM -> SUMMARIZE_ARTICLE_PROMPT_MEDIUM
             SummaryLength.LONG -> SUMMARIZE_ARTICLE_PROMPT_LARGE
+            SummaryLength.FORMATTED -> FULL_DETAILS_WITH_BULLET_POINTS
         }
         try {
             val (title, articleText) = returnTextToSummarize(url)
@@ -66,6 +69,23 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
         }
     }
 
+    fun summarizeArticleWithPrompt(
+        prompt: String,
+        text: String
+    ): Flow<AiSummariserResult<Pair<String, String>>> = flow {
+        emit(AiSummariserResult.Loading)
+
+        try {
+            val summary = geminiApiService.sendPrompt(text)
+            if (summary.isNullOrEmpty()) {
+                emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
+            } else {
+                emit(AiSummariserResult.Success(Pair(prompt, summary)))
+            }
+        } catch (e: Exception) {
+            emit(AiSummariserResult.Error(e))
+        }
+    }
     private suspend fun returnTextToSummarize(url: String): Pair<String, String> {
         return withContext(Dispatchers.IO) {
             try {

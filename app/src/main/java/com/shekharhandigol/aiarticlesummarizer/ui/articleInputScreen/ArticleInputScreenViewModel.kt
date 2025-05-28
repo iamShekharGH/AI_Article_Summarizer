@@ -46,6 +46,32 @@ class ArticleInputScreenViewModel @Inject constructor(
         }
     }
 
+    fun summarizeArticleWithPrompt(prompt: String, text: String) {
+        viewModelScope.launch {
+            repository.summarizeArticleWithPrompt(prompt = prompt, text = text).collect { result ->
+                when (result) {
+                    is AiSummariserResult.Error -> {
+                        _summaryText.value = ArticleInputScreenUIState.Error(
+                            result.exception.message ?: "Unknown error"
+                        )
+                    }
+
+                    AiSummariserResult.Loading -> {
+                        _summaryText.value = ArticleInputScreenUIState.Loading
+                    }
+
+                    is AiSummariserResult.Success -> {
+                        _summaryText.value =
+                            ArticleInputScreenUIState.UrlSummarisedSuccessfully(
+                                result.data.first,
+                                result.data.second
+                            )
+                    }
+                }
+            }
+        }
+    }
+
     fun saveArticleToDb(url: String, summary: String, title: String) {
         viewModelScope.launch {
             repository.insertArticleWithSummary(url = url, title = title, summary = summary)

@@ -8,6 +8,7 @@ import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.graphics.createBitmap
 
 
 @Singleton
@@ -17,7 +18,7 @@ class AiArticleSummarizerRepository @Inject constructor(
     private val settingsDataSource: SettingsDataSource
 ) {
     fun summarizeArticleAndBitmap(
-        bitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+        bitmap: Bitmap = createBitmap(1, 1),
         url: String
     ): Flow<AiSummariserResult<String>> =
         remoteArticlesGeminiDataSource.summarizeArticleAndBitmap(bitmap, url)
@@ -27,6 +28,12 @@ class AiArticleSummarizerRepository @Inject constructor(
         url: String
     ): Flow<AiSummariserResult<Pair<String, String>>> =
         remoteArticlesGeminiDataSource.summarizeArticle(url)
+
+    fun summarizeArticleWithPrompt(
+        prompt: String,
+        text: String
+    ): Flow<AiSummariserResult<Pair<String, String>>> =
+        remoteArticlesGeminiDataSource.summarizeArticleWithPrompt(prompt = prompt, text = text)
 
     fun getAllArticles(): Flow<AiSummariserResult<List<Article>>> =
         localStorageDataSource.getAllArticles()

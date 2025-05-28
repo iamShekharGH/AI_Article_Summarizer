@@ -1,7 +1,6 @@
 package com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,10 +31,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.shekharhandigol.aiarticlesummarizer.database.Article
 import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
 import com.shekharhandigol.aiarticlesummarizer.database.Summary
 import com.shekharhandigol.aiarticlesummarizer.util.getDayOfMonthSuffix
+import com.shekharhandigol.aiarticlesummarizer.util.simpleMarkdownToAnnotatedString
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,7 +60,7 @@ fun SummaryScreen(
     val summary = articleWithSummaries.summaries.first()
     val article = articleWithSummaries.article
     val context = LocalContext.current
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.articleUrl))
+    val intent = Intent(Intent.ACTION_VIEW, article.articleUrl.toUri())
     ModalBottomSheet(
         onDismissRequest = { onDismiss.invoke() },
         sheetState = sheetState,
@@ -113,8 +114,10 @@ fun SummaryScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = summary.summaryText,
-                        style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp)
+                        text = simpleMarkdownToAnnotatedString
+                            (summary.summaryText),
+                        style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp),
+
                     )
                 }
                 item {
