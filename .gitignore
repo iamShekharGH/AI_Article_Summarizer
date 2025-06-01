@@ -1,34 +1,19 @@
+# IntelliJ / Android Studio
 *.iml
-*.xml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-
-
-# Local configuration
-local.properties
-
-# Gradle files
 .gradle/
+local.properties
+.DS_Store
 build/
+captures/
+.externalNativeBuild/
+.cxx/
 
 # Android Studio and IntelliJ IDEA files
-.idea/
+.idea/       # Main rule for .idea folder
 *.ipr
 *.iws
 
 # Build artifacts
-captures/
 *.apk
 *.aab
 *.aar
@@ -39,17 +24,14 @@ captures/
 *.so
 *.jnilib
 
-# Native build artifacts
-.externalNativeBuild/
-.cxx/
-
 # Keystore files (sensitive!)
 *.jks
 *.keystore
 
-# Crashlytics/Firebase files
+# Log files
 firebase-debug.log
 firebase-release.log
+# *.log # Uncomment if you have other general .log files to ignore
 
 # Test results
 test-results/
@@ -63,9 +45,11 @@ proguard/
 release/proguard/
 mapping.txt
 
-# Android Studio specific files
-.DS_Store # macOS specific
-Thumbs.db # Windows specific
+# OS Specific
+Thumbs.db # Windows specific (DS_Store is already covered above)
 
 # Generated files
 generated/
+
+# Environment variables (optional)
+# .env
