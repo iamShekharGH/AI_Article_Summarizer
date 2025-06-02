@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -21,14 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.shekharhandigol.aiarticlesummarizer.database.Article
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.ArticleListItem
 
 
 @Composable
 fun LocalSearchScreen(
     onArticleClick: (Int) -> Unit,
-    onDeleteClick: (Article) -> Unit,
 ) {
     val viewModel: SearchScreenViewModel = hiltViewModel()
     val query by viewModel.query.collectAsStateWithLifecycle()
@@ -41,7 +40,12 @@ fun LocalSearchScreen(
             OutlinedTextField(
                 value = query,
                 onValueChange = { viewModel.onQueryChange(it) },
-                label = { Text("Search Articles") },
+                label = {
+                    Text(
+                        text = "Search Articles",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     IconButton(
@@ -60,21 +64,24 @@ fun LocalSearchScreen(
                 SearchScreenUiStates.Error -> {
                     Text(
                         text = "No articles found.",
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
                 SearchScreenUiStates.Loading -> {
                     Text(
                         text = "Loading...",
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
                 SearchScreenUiStates.Initial -> {
                     Text(
                         text = "Search for articles",
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
@@ -84,7 +91,7 @@ fun LocalSearchScreen(
                             ArticleListItem(
                                 article = state.articles[article],
                                 onArticleClick = onArticleClick,
-                                onDeleteClick = onDeleteClick
+                                onDeleteClick = viewModel::deleteArticle
                             )
                         }
                     }
