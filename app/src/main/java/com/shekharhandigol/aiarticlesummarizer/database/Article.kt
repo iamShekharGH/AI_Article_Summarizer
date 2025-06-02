@@ -3,16 +3,23 @@ package com.shekharhandigol.aiarticlesummarizer.database
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME
 
 @Entity(tableName = DATABASE_NAME)
+@TypeConverters(Converters::class)
 data class Article(
     @PrimaryKey(autoGenerate = true)
     val articleId: Int = 0,
     val title: String,
     val articleUrl: String,
     val favouriteArticles: Boolean = false,
-    val date: Long = System.currentTimeMillis()
+    val date: Long = System.currentTimeMillis(),
+
+    val tags: List<String> = emptyList(),
+    val typeOfSummary: String,
+    val imageUrl: String
 )
 
 
@@ -29,5 +36,18 @@ data class Summary(
     @PrimaryKey(autoGenerate = true)
     val summaryId: Int = 0,
     val articleId: Int,
-    val summaryText: String
+    val summaryText: String,
+    val ogText: String
 )
+
+class Converters {
+    @TypeConverter
+    fun fromString(value: String?): List<String>? {
+        return value?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+    }
+
+    @TypeConverter
+    fun fromList(list: List<String>?): String? {
+        return list?.joinToString(",")
+    }
+}

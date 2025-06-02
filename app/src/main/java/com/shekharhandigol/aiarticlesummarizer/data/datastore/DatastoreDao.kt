@@ -11,6 +11,7 @@ import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_PROMPT_SETTINGS
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,7 +26,10 @@ class DatastoreDao @Inject constructor(private val dataStore: DataStore<Preferen
 
     val darkModeFlow: Flow<Boolean> = dataStore.data
         .map { preferences ->
-            preferences[darkModePreferenceKey] ?: false
+            preferences[darkModePreferenceKey] == true
+        }.catch { exception ->
+            exception.printStackTrace()
+            emit(false)
         }
 
     suspend fun setDarkMode(isDarkMode: Boolean) {
@@ -39,6 +43,9 @@ class DatastoreDao @Inject constructor(private val dataStore: DataStore<Preferen
         .map { preferences ->
             SummaryLength.entries.find { it.value == preferences[promptSettingsPreferenceKey] }
                 ?: SummaryLength.MEDIUM
+        }.catch { exception ->
+            exception.printStackTrace()
+            emit(SummaryLength.MEDIUM)
         }
 
     suspend fun savePromptSettings(length: SummaryLength) {
@@ -51,6 +58,9 @@ class DatastoreDao @Inject constructor(private val dataStore: DataStore<Preferen
         .map { preferences ->
             GeminiModelName.entries.find { it.value == preferences[geminiModelNamePreferenceKey] }
                 ?: GeminiModelName.GEMINI_1_5_FLASH
+        }.catch { exception ->
+            exception.printStackTrace()
+            emit(GeminiModelName.GEMINI_1_5_FLASH)
         }
 
     suspend fun setGeminiModelName(modelName: GeminiModelName) {
