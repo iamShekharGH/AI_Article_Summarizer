@@ -10,8 +10,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.text.clear
-import kotlin.text.none
 
 
 fun getDayOfMonthSuffix(millis: Long): String {
@@ -30,8 +28,8 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
         var currentIndex = 0
 
         val combinedRegex =
-            """(\*\*(.*?)\*\*)|(\*(.*?)\*)|(\_ (.*?)\_)|(\[([^\]]+)\]\(([^)]+)\))""".toRegex()
-
+            """(\*\*(.*?)\*\*)|(\*(.*?)\*)|(_ (.*?)_)|(\[([^]]+)]\(([^)]+)\))|(\n\s*-»\s+(.*))""".toRegex()
+//            """(\*\*(.*?)\*\*)|(\*(.*?)\*)|(\_ (.*?)\_)|(\[([^\]]+)\]\(([^)]+)\))""".toRegex()
         combinedRegex.findAll(text).forEach { matchResult ->
             val matchStart = matchResult.range.first
             val matchEnd = matchResult.range.last + 1

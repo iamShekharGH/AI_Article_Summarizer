@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,8 @@ plugins {
     alias(libs.plugins.com.google.dagger.hilt.android)
     alias(libs.plugins.kotlinSerialization)
     id("kotlin-kapt")
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -47,6 +51,15 @@ android {
 
 dependencies {
 
+    implementation(libs.firebase.crashlytics)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.ai)
+    //https://firebase.google.com/docs/ai-logic/get-started?platform=web&authuser=0&_gl=1*146x79*_ga*MTM5NTY2MjAyNS4xNzQ4ODI4Mzc1*_ga_CW55HF8NVT*czE3NDg4NDQzMDQkbzIkZzEkdDE3NDg4NDQ0NDckajQ0JGwwJGgw&api=dev#add-sdk
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+
     implementation(libs.jsoup)
 
     implementation(libs.androidx.navigation.compose)
@@ -58,6 +71,10 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.room.compiler)
@@ -72,6 +89,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
