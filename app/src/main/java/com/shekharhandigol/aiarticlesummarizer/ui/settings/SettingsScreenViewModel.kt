@@ -2,7 +2,12 @@ package com.shekharhandigol.aiarticlesummarizer.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
+import com.shekharhandigol.aiarticlesummarizer.domain.GetDarkModeUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.GetGeminiModelUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.GetPromptSettingsUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SaveDarkModeUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SaveGeminiModelUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SavePromptSettingsUseCase
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +19,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsScreenViewModel @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
+    private val savePromptSettingsUseCase: SavePromptSettingsUseCase,
+    private val getPromptSettingsUseCase: GetPromptSettingsUseCase,
+    private val saveDarkModeUseCase: SaveDarkModeUseCase,
+    private val getDarkModeUseCase: GetDarkModeUseCase,
+    private val saveGeminiModelUseCase: SaveGeminiModelUseCase,
+    private val getGeminiModelUseCase: GetGeminiModelUseCase
 ) : ViewModel() {
 
     private val _promptSettings = MutableStateFlow(SummaryLength.MEDIUM)
@@ -29,13 +39,13 @@ class SettingsScreenViewModel @Inject constructor(
 
     fun saveSummariesPromptSettings(summaryLength: SummaryLength) {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.savePromptSettings(summaryLength)
+            savePromptSettingsUseCase(summaryLength)
         }
     }
 
     fun getPromptSettings() {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.getPromptSettings().collect { result ->
+            getPromptSettingsUseCase().collect { result ->
                 _promptSettings.value = result
 
             }
@@ -54,13 +64,13 @@ class SettingsScreenViewModel @Inject constructor(
 
     private fun saveDarkModeValue(setDarkMode: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.saveDarkModeValue(setDarkMode)
+            saveDarkModeUseCase(setDarkMode)
         }
     }
 
     fun getDarkModeValue() {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.getDarkModeValue().collect { result ->
+            getDarkModeUseCase().collect { result ->
                 _darkMode.value = result
             }
         }
@@ -68,13 +78,13 @@ class SettingsScreenViewModel @Inject constructor(
 
     private fun saveGeminiModel(modelName: GeminiModelName) {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.saveGeminiModel(modelName)
+            saveGeminiModelUseCase(modelName)
         }
     }
 
     fun getGeminiModelName() {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.geminiModelNameFlow().collect { result ->
+            getGeminiModelUseCase().collect { result ->
                 _geminiModel.value = result
             }
         }
