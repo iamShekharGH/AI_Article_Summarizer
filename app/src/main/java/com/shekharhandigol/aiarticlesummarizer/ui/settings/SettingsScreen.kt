@@ -13,7 +13,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -30,48 +29,52 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 
 @Composable
-fun MainSettingsScreen() {
+fun MainSettingsScreen(
+    openThemesChooser: () -> Unit
+) {
 
     val viewModel: SettingsScreenViewModel = hiltViewModel()
     val darkModeToggleState = viewModel.darkMode.collectAsStateWithLifecycle()
     val promptSettings = viewModel.promptSettings.collectAsStateWithLifecycle()
     val geminiModelName = viewModel.geminiModel.collectAsStateWithLifecycle()
+    val themeName = viewModel.themeName.collectAsStateWithLifecycle()
 
 
     LaunchedEffect(Unit) {
         viewModel.getPromptSettings()
         viewModel.getDarkModeValue()
         viewModel.getGeminiModelName()
-    }
-
-    LaunchedEffect(darkModeToggleState.value) {
-        if (darkModeToggleState.value) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }
+        viewModel.getThemeName()
     }
 
     SettingsScreen(
         darkModeToggleState = darkModeToggleState,
         promptSettings = promptSettings,
         geminiModelName = geminiModelName,
+        themeName = themeName,
         setDarkMode = { state ->
             viewModel.setDarkModeValue(
                 state
             )
+            if (state) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+
         },
         setSummaryLength = { summaryLength ->
             viewModel.saveSummariesPromptSettings(summaryLength)
         },
         onGeminiModelChange = { geminiModel ->
             viewModel.setGeminiModel(geminiModel)
-        }
+        },
+        openThemesChooser = openThemesChooser
     )
 
 }
@@ -81,9 +84,11 @@ fun SettingsScreen(
     darkModeToggleState: State<Boolean>,
     promptSettings: State<SummaryLength>,
     geminiModelName: State<GeminiModelName>,
+    themeName: State<AppThemeOption>,
     setDarkMode: (Boolean) -> Unit,
     setSummaryLength: (SummaryLength) -> Unit,
-    onGeminiModelChange: (GeminiModelName) -> Unit
+    onGeminiModelChange: (GeminiModelName) -> Unit,
+    openThemesChooser: () -> Unit
 ) {
     var summaryMenuExpanded by remember { mutableStateOf(false) }
     var geminiMenuExpanded by remember { mutableStateOf(false) }
@@ -115,7 +120,7 @@ fun SettingsScreen(
 
             Box {
                 Text(
-                    text = promptSettings.value.value,
+                    text = promptSettings.value.displayName,
                     modifier = Modifier
                         .clickable { summaryMenuExpanded = true }
                         .padding(vertical = 8.dp),
@@ -130,7 +135,7 @@ fun SettingsScreen(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = summaryLengthOption.value,
+                                    text = summaryLengthOption.displayName,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             },
@@ -176,12 +181,18 @@ fun SettingsScreen(
                     }
                 }
             }
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Text("Choose Theme", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = themeName.value.name.replace("_", " ").lowercase()
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+                modifier = Modifier
+                    .clickable { openThemesChooser() }
+                    .padding(vertical = 8.dp),
+                style = MaterialTheme.typography.bodyLarge,
 
-            OutlinedButton(onClick = {
-                throw RuntimeException("Test Crash") // Force a crash
-            }) {
-                Text("Crash", style = MaterialTheme.typography.labelLarge)
-            }
+                )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         }
     }
@@ -191,15 +202,17 @@ fun SettingsScreen(
 @Composable
 fun PreviewSettingsScreen() {
     val darkMode = remember { mutableStateOf(true) }
-    val promptSettings = remember { mutableStateOf(SummaryLength.MEDIUM) }
+    val promptSettings = remember { mutableStateOf(SummaryLength.MEDIUM_SUMMARY) }
     val geminiModel = remember { mutableStateOf(GeminiModelName.GEMINI_1_5_FLASH) }
+    val themeName = remember { mutableStateOf(AppThemeOption.LIGHT_HIGH_CONTRAST) }
     SettingsScreen(
         darkModeToggleState = darkMode,
         promptSettings = promptSettings,
         geminiModelName = geminiModel,
+        themeName = themeName,
         setDarkMode = {},
         setSummaryLength = {},
-        onGeminiModelChange = {}
-
+        onGeminiModelChange = {},
+        openThemesChooser = {}
     )
 }

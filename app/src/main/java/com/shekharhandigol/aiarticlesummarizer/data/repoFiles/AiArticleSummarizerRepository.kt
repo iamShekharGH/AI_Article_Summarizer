@@ -6,6 +6,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.flow.Flow
@@ -81,5 +82,11 @@ class AiArticleSummarizerRepository @Inject constructor(
     }
 
     fun geminiModelNameFlow(): Flow<GeminiModelName> = settingsDataSource.geminiModelNameFlow()
+
+    suspend fun saveThemeName(themeName: AppThemeOption) {
+        settingsDataSource.saveThemeName(themeName)
+    }
+
+    fun getThemeName(): Flow<AppThemeOption> = settingsDataSource.getThemeName()
 
 }

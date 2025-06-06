@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.shekharhandigol.aiarticlesummarizer.domain.GetDarkModeUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetPromptSettingsUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.GetThemeNameUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveDarkModeUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SavePromptSettingsUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SaveThemeNameUseCase
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,10 +27,12 @@ class SettingsScreenViewModel @Inject constructor(
     private val saveDarkModeUseCase: SaveDarkModeUseCase,
     private val getDarkModeUseCase: GetDarkModeUseCase,
     private val saveGeminiModelUseCase: SaveGeminiModelUseCase,
-    private val getGeminiModelUseCase: GetGeminiModelUseCase
+    private val getGeminiModelUseCase: GetGeminiModelUseCase,
+    private val getThemeNameUseCase: GetThemeNameUseCase,
+    private val saveThemeNameUseCase: SaveThemeNameUseCase
 ) : ViewModel() {
 
-    private val _promptSettings = MutableStateFlow(SummaryLength.MEDIUM)
+    private val _promptSettings = MutableStateFlow(SummaryLength.MEDIUM_SUMMARY)
     val promptSettings = _promptSettings.asStateFlow()
 
     private val _darkMode = MutableStateFlow(false)
@@ -35,6 +40,9 @@ class SettingsScreenViewModel @Inject constructor(
 
     private val _geminiModel = MutableStateFlow(GeminiModelName.GEMINI_1_5_FLASH)
     val geminiModel = _geminiModel.asStateFlow()
+
+    private val _themeName = MutableStateFlow(AppThemeOption.SYSTEM_DEFAULT)
+    val themeName = _themeName.asStateFlow()
 
 
     fun saveSummariesPromptSettings(summaryLength: SummaryLength) {
@@ -47,7 +55,6 @@ class SettingsScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getPromptSettingsUseCase().collect { result ->
                 _promptSettings.value = result
-
             }
         }
     }
@@ -89,4 +96,21 @@ class SettingsScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun getThemeName() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getThemeNameUseCase().collect { result ->
+                _themeName.value = result
+            }
+        }
+    }
+
+    /*
+    //TODO move theme chooser to this setting page.
+    fun setThemeName(themeName: AppThemeOption) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _themeName.value = themeName
+            saveThemeNameUseCase(themeName)
+        }
+    }*/
 }
