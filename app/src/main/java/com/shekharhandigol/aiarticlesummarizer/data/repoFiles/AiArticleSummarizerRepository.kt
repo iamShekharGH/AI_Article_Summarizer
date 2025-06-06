@@ -1,14 +1,16 @@
 package com.shekharhandigol.aiarticlesummarizer.data.repoFiles
 
 import android.graphics.Bitmap
-import com.shekharhandigol.aiarticlesummarizer.database.Article
-import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
+import androidx.core.graphics.createBitmap
+import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import androidx.core.graphics.createBitmap
 
 
 @Singleton
@@ -26,7 +28,7 @@ class AiArticleSummarizerRepository @Inject constructor(
 
     fun summarizeArticle(
         url: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> =
+    ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> =
         remoteArticlesGeminiDataSource.summarizeArticle(url)
 
     fun summarizeArticleWithPrompt(
@@ -35,26 +37,26 @@ class AiArticleSummarizerRepository @Inject constructor(
     ): Flow<AiSummariserResult<Pair<String, String>>> =
         remoteArticlesGeminiDataSource.summarizeArticleWithPrompt(prompt = prompt, text = text)
 
-    fun getAllArticles(): Flow<AiSummariserResult<List<Article>>> =
+    fun getAllArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.getAllArticles()
 
-    fun getAllFavoriteArticles(): Flow<AiSummariserResult<List<Article>>> =
+    fun getAllFavoriteArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.getAllFavoriteArticles()
 
     fun favouriteThisArticle(articleId: Int, currentFavouriteState: Boolean) {
         localStorageDataSource.favouriteThisArticle(articleId, currentFavouriteState)
     }
 
-    fun getArticleWithSummaries(articleId: Int): Flow<AiSummariserResult<ArticleWithSummaries>> =
+    fun getArticleWithSummaries(articleId: Int): Flow<AiSummariserResult<ArticleWithSummaryUiModel>> =
         localStorageDataSource.getArticleWithSummaries(articleId)
 
     fun insertArticleWithSummary(
-        url: String, title: String, summary: String
+        articleWithSummaryUiModel: ArticleWithSummaryUiModel
     ): Flow<AiSummariserResult<Long>> =
-        localStorageDataSource.insertArticleWithSummary(url, title, summary)
+        localStorageDataSource.insertArticleWithSummary(articleWithSummaryUiModel)
 
 
-    fun searchArticles(query: String): Flow<AiSummariserResult<List<Article>>> =
+    fun searchArticles(query: String): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.searchArticles(query)
 
     suspend fun deleteArticleById(articleId: Int) =

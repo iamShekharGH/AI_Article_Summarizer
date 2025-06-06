@@ -2,9 +2,10 @@ package com.shekharhandigol.aiarticlesummarizer.ui.searchScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
-import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiSummariserResult
-import com.shekharhandigol.aiarticlesummarizer.database.Article
+import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
+import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SearchArticleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
+    private val searchArticleUseCase: SearchArticleUseCase,
+    private val deleteArticleUseCase: DeleteArticleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SearchScreenUiStates>(SearchScreenUiStates.Initial)
@@ -25,7 +27,7 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun searchArticles(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.searchArticles(query).collect { articles ->
+            searchArticleUseCase(query).collect { articles ->
                 when (articles) {
                     is AiSummariserResult.Error -> {
                         _uiState.value = SearchScreenUiStates.Error
@@ -46,6 +48,14 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
+    fun deleteArticle(article: ArticleUiModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteArticleUseCase(article.articleId)
+        }
+    }
+
+
+
     fun onQueryChange(text: String) {
         _query.value = text
         if (text.isNotEmpty()) searchArticles(text)
@@ -58,5 +68,5 @@ sealed class SearchScreenUiStates {
     data object Initial : SearchScreenUiStates()
     data object Loading : SearchScreenUiStates()
     data object Error : SearchScreenUiStates()
-    data class Success(val articles: List<Article>) : SearchScreenUiStates()
+    data class Success(val articles: List<ArticleUiModel>) : SearchScreenUiStates()
 }

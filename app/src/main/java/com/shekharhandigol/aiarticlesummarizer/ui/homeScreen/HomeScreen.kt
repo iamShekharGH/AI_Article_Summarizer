@@ -2,18 +2,12 @@ package com.shekharhandigol.aiarticlesummarizer.ui.homeScreen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.shekharhandigol.aiarticlesummarizer.SharedUrl
-import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.MainFavouriteArticlesScreen
@@ -50,7 +44,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(title = { Text("Summarized Articles") })
+//            TopAppBar(title = { Text("Summarized Articles") })
         },
         bottomBar = {
             BottomNavigationBar(navController = navController)
@@ -59,11 +53,11 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
             SnackbarHost(hostState = snackbarHostState)
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
+            /*FloatingActionButton(onClick = {
 
             }) {
                 Icon(Icons.Filled.Add, contentDescription = "Summarize Article")
-            }
+            }*/
         }
     ) { paddingValues ->
 
@@ -101,13 +95,14 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
 
             is HomeScreenUiStates.Success -> {
                 SummaryScreen(
-                    articleWithSummaries = state.articleWithSummaries,
+                    articleWithSummaries = state.articleWithSummaryUiModel,
                     sheetState = sheetState,
                     onDismiss = {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
-                    addToFavorites = viewModel::addToFavorites
+                    addToFavorites = viewModel::addToFavorites,
+                    deleteArticle = viewModel::deleteArticle
                 )
             }
 
@@ -120,6 +115,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         viewModel.resetState()
                     },
                     addToFavorites = { _, _ -> },
+                    deleteArticle = { },
                     showFavoriteButton = false
                 )
             }
@@ -136,7 +132,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
 fun HomeScreenNavHost(
     navController: NavHostController,
     onArticleClick: (Int) -> Unit,
-    showJustSummarizedText: (ArticleWithSummaries) -> Unit,
+    showJustSummarizedText: (ArticleWithSummaryUiModel) -> Unit,
     url: SharedUrl
 ) {
     NavHost(navController = navController, startDestination = Destinations.MainHome) {
@@ -152,8 +148,7 @@ fun HomeScreenNavHost(
             }
             composable<Destinations.List> {
                 LocalSearchScreen(
-                    onArticleClick = onArticleClick,
-                    onDeleteClick = {}
+                    onArticleClick = onArticleClick
                 )
             }
             composable<Destinations.FavouriteList> { MainFavouriteArticlesScreen(onArticleClick) }

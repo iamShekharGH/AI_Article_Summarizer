@@ -1,10 +1,10 @@
 package com.shekharhandigol.aiarticlesummarizer
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.net.toUri
 import androidx.navigation.compose.rememberNavController
 import com.shekharhandigol.aiarticlesummarizer.ui.homeScreen.HomeScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.theme.AIArticleSummarizerTheme
@@ -38,8 +38,9 @@ class MainActivity : ComponentActivity() {
 
         return sharedText.takeIf {
             try {
-                Uri.parse(it).scheme?.startsWith("http") == true
+                it.toUri().scheme?.startsWith("http") == true
             } catch (e: Exception) {
+                e.printStackTrace()
                 false
             }
         }

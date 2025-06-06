@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -24,10 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
@@ -101,7 +101,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Dark Mode", style = TextStyle(fontSize = 18.sp))
+                Text("Dark Mode", style = MaterialTheme.typography.titleMedium)
                 Switch(
                     checked = darkModeToggleState.value,
                     onCheckedChange = {
@@ -111,26 +111,31 @@ fun SettingsScreen(
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            Text("Summary Length", style = TextStyle(fontSize = 18.sp))
+            Text("Summary Length", style = MaterialTheme.typography.titleMedium)
 
             Box {
                 Text(
                     text = promptSettings.value.value,
                     modifier = Modifier
                         .clickable { summaryMenuExpanded = true }
-                        .padding(8.dp),
-                    style = TextStyle(fontSize = 16.sp),
+                        .padding(vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge,
 
                     )
                 DropdownMenu(
                     expanded = summaryMenuExpanded,
                     onDismissRequest = { summaryMenuExpanded = false }
                 ) {
-                    SummaryLength.entries.forEach { option ->
+                    SummaryLength.entries.forEach { summaryLengthOption ->
                         DropdownMenuItem(
-                            text = { Text(text = option.value) },
+                            text = {
+                                Text(
+                                    text = summaryLengthOption.value,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            },
                             onClick = {
-                                setSummaryLength(option)
+                                setSummaryLength(summaryLengthOption)
                                 summaryMenuExpanded = false
                             }
                         )
@@ -140,31 +145,42 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            Text("Gemini Model", style = TextStyle(fontSize = 18.sp))
+            Text("Gemini Model", style = MaterialTheme.typography.titleMedium)
             Box {
                 Text(
                     text = geminiModelName.value.value,
                     modifier = Modifier
                         .clickable { geminiMenuExpanded = true }
-                        .padding(8.dp),
-                    style = TextStyle(fontSize = 16.sp),
+                        .padding(vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge,
 
                     )
                 DropdownMenu(
                     expanded = geminiMenuExpanded,
                     onDismissRequest = { geminiMenuExpanded = false }
                 ) {
-                    GeminiModelName.entries.forEach { option ->
+                    GeminiModelName.entries.forEach { geminiModelOption ->
                         DropdownMenuItem(
-                            text = { Text(text = option.value) },
+                            text = {
+                                Text(
+                                    text = geminiModelOption.value,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            },
                             onClick = {
 
-                                onGeminiModelChange(option)
+                                onGeminiModelChange(geminiModelOption)
                                 geminiMenuExpanded = false
                             }
                         )
                     }
                 }
+            }
+
+            OutlinedButton(onClick = {
+                throw RuntimeException("Test Crash") // Force a crash
+            }) {
+                Text("Crash", style = MaterialTheme.typography.labelLarge)
             }
 
         }

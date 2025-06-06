@@ -4,22 +4,29 @@ package com.shekharhandigol.aiarticlesummarizer.data.repoFiles
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.createBitmap
+import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponse
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
 import com.shekharhandigol.aiarticlesummarizer.data.FULL_DETAILS_WITH_BULLET_POINTS
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
 import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_LARGE
 import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_MEDIUM
 import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_SHORT
+import com.shekharhandigol.aiarticlesummarizer.data.mappers.toUiModel
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 @Singleton
 class RemoteArticlesGeminiDataSource @Inject constructor(
@@ -42,8 +49,7 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
 
     fun summarizeArticle(
         url: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> = flow {
-        emit(AiSummariserResult.Loading)
+    ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> = flow {
 
         val promptSettings =
             settingsDataSource.getPromptSettings().firstOrNull() ?: SummaryLength.MEDIUM
@@ -53,40 +59,41 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             SummaryLength.LONG -> SUMMARIZE_ARTICLE_PROMPT_LARGE
             SummaryLength.FORMATTED -> FULL_DETAILS_WITH_BULLET_POINTS
         }
-        try {
-            val (title, articleText) = returnTextToSummarize(url)
-            val text = prompt + "\n" + articleText
+        val articleSummary = returnTextToSummarize(url)
+        val text = prompt + "\n" + articleSummary.toSummarise
 
-            val summary = geminiApiService.sendPrompt(text)
-            if (summary.isNullOrEmpty()) {
-                emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
-            } else {
-                emit(AiSummariserResult.Success(Pair(title, summary)))
-            }
+        val summary = geminiApiService.sendPrompt(text)
+        if (summary.isNullOrEmpty()) {
+            emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
+        } else {
+            emit(AiSummariserResult.Success(articleSummary.copy(onSummarise = summary).toUiModel()))
+        }
 
-        } catch (e: Exception) {
+    }.onStart { emit(AiSummariserResult.Loading) }
+        .catch { e: Throwable ->
+            e.printStackTrace()
             emit(AiSummariserResult.Error(e))
         }
-    }
 
     fun summarizeArticleWithPrompt(
         prompt: String,
         text: String
     ): Flow<AiSummariserResult<Pair<String, String>>> = flow {
-        emit(AiSummariserResult.Loading)
 
-        try {
-            val summary = geminiApiService.sendPrompt(text)
-            if (summary.isNullOrEmpty()) {
-                emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
-            } else {
-                emit(AiSummariserResult.Success(Pair(prompt, summary)))
-            }
-        } catch (e: Exception) {
+        val summary = geminiApiService.sendPrompt(text)
+        if (summary.isNullOrEmpty()) {
+            emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
+        } else {
+            emit(AiSummariserResult.Success(Pair(prompt, summary)))
+        }
+
+    }.onStart { emit(AiSummariserResult.Loading) }
+        .catch { e: Throwable ->
+            e.printStackTrace()
             emit(AiSummariserResult.Error(e))
         }
-    }
-    private suspend fun returnTextToSummarize(url: String): Pair<String, String> {
+
+    private suspend fun returnTextToSummarize(url: String): GeminiJsoupResponse {
         return withContext(Dispatchers.IO) {
             try {
                 val document = Jsoup.connect(url)
@@ -97,15 +104,23 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
                 val title = document.select("head > title").text()
                 Log.i("Title:", "Title: $title")
 
+                val imageUrl = document.select("meta[property=og:image]").attr("content")
+                    .takeIf { it.isNotEmpty() }
+                Log.i("Image URL:", "Image URL: $imageUrl")
+
                 val articleText = extractArticleText(document).also {
                     Log.i(
                         "Article Text:",
                         "Article Text: $it"
                     )
                 }
-                Log.i("Article Text:", "Article Text: $articleText")
 
-                Pair(title, articleText)
+                GeminiJsoupResponse(
+                    title = title,
+                    toSummarise = articleText,
+                    imageUrl = imageUrl ?: "",
+                    onSummarise = ""
+                )
 
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -124,6 +139,4 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             }
         }
     }
-
-
 }
