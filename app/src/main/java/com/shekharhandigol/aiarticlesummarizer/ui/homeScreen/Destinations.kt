@@ -22,4 +22,7 @@ sealed class Destinations {
 
     @Serializable
     data object FavouriteList : Destinations()
+
+    @Serializable
+    data object ChooseTheme : Destinations()
 }

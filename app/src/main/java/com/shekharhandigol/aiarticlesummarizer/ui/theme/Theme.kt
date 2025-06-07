@@ -8,9 +8,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -240,26 +239,15 @@ private val highContrastDarkColorScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
 )
 
-@Immutable
-data class ColorFamily(
-    val color: Color,
-    val onColor: Color,
-    val colorContainer: Color,
-    val onColorContainer: Color
-)
-
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
-)
-
 @Composable
 fun AIArticleSummarizerTheme(
+    selectedTheme: AppThemeOption = AppThemeOption.SYSTEM_DEFAULT,
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable() () -> Unit
 ) {
-    val colorScheme = when {
+    /*val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -267,7 +255,59 @@ fun AIArticleSummarizerTheme(
 
         darkTheme -> darkScheme
         else -> lightScheme
+    }*/
+    val context = LocalContext.current
+    val colorScheme = when (selectedTheme) {
+        AppThemeOption.SYSTEM_DEFAULT -> {
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            } else {
+                if (darkTheme) darkScheme else lightScheme
+            }
+        }
+
+        AppThemeOption.LIGHT -> {
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dynamicLightColorScheme(context) // Or a specific dynamic light if you prefer
+            } else {
+                lightScheme
+            }
+        }
+
+        AppThemeOption.DARK -> {
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dynamicDarkColorScheme(context) // Or a specific dynamic dark
+            } else {
+                darkScheme
+            }
+        }
+
+        AppThemeOption.LIGHT_MEDIUM_CONTRAST -> mediumContrastLightColorScheme
+        AppThemeOption.LIGHT_HIGH_CONTRAST -> highContrastLightColorScheme
+        AppThemeOption.DARK_MEDIUM_CONTRAST -> mediumContrastDarkColorScheme
+        AppThemeOption.DARK_HIGH_CONTRAST -> highContrastDarkColorScheme
     }
+
+    /*val useDarkIcons = when(selectedTheme) {
+        AppThemeOption.SYSTEM_DEFAULT -> !darkTheme
+        AppThemeOption.LIGHT,
+        AppThemeOption.LIGHT_MEDIUM_CONTRAST,
+        AppThemeOption.LIGHT_HIGH_CONTRAST -> true
+        AppThemeOption.DARK,
+        AppThemeOption.DARK_MEDIUM_CONTRAST,
+        AppThemeOption.DARK_HIGH_CONTRAST -> false
+    }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window
+            window?.statusBarColor = colorScheme.background.toArgb() // Or another appropriate color
+            window?.let {
+                WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = useDarkIcons
+            }
+        }
+    }*/
 
     MaterialTheme(
         colorScheme = colorScheme,

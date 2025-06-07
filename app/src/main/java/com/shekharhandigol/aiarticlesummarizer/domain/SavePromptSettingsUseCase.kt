@@ -1,6 +1,7 @@
 package com.shekharhandigol.aiarticlesummarizer.domain
 
 import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.flow.Flow
@@ -53,4 +54,19 @@ class GetGeminiModelUseCase @Inject constructor(
 ) : NoInputUseCase<Flow<GeminiModelName>> {
     override suspend fun invoke(): Flow<GeminiModelName> =
         aiArticleSummarizerRepository.geminiModelNameFlow()
+}
+
+class GetThemeNameUseCase @Inject constructor(
+    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
+) : NoInputUseCase<Flow<AppThemeOption>> {
+    override suspend fun invoke(): Flow<AppThemeOption> =
+        aiArticleSummarizerRepository.getThemeName()
+}
+
+class SaveThemeNameUseCase @Inject constructor(
+    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
+) : NoOutputUseCase<AppThemeOption> {
+    override suspend fun invoke(input: AppThemeOption) {
+        aiArticleSummarizerRepository.saveThemeName(input)
+    }
 }

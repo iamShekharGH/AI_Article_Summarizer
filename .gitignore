@@ -54,3 +54,4 @@ generated/
 # Environment variables (optional)
 # .env
 /app/google-services.json
+/.idea/appInsightsSettings.xml

@@ -1,6 +1,7 @@
 package com.shekharhandigol.aiarticlesummarizer.data.repoFiles
 
 import com.shekharhandigol.aiarticlesummarizer.data.datastore.DatastoreDao
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.flow.Flow
@@ -31,4 +32,10 @@ class SettingsDataSource @Inject constructor(
     }
 
     fun geminiModelNameFlow(): Flow<GeminiModelName> = datastoreDao.geminiModelNameFlow
+
+    suspend fun saveThemeName(themeName: AppThemeOption) {
+        datastoreDao.setSelectedAppTheme(themeName)
+    }
+
+    fun getThemeName(): Flow<AppThemeOption> = datastoreDao.selectedAppTheme
 }
