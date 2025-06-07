@@ -79,5 +79,10 @@ fun GeminiJsoupResponse.toUiModel(): GeminiJsoupResponseUiModel = GeminiJsoupRes
     title = title,
     toSummarise = toSummarise,
     onSummarise = onSummarise,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    favouriteArticles = favouriteArticles,
+    typeOfSummary = typeOfSummary,
+    articleUrl = articleUrl,
+    articleId = articleId,
+    summaryId = summaryId
 )

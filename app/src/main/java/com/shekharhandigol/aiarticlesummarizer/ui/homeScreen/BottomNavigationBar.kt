@@ -13,8 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 
 
 @Composable
@@ -27,7 +29,7 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
-                selected = currentRoute?.contains("." + item.destinations.toString()) ?: false,
+                selected = currentRoute?.contains("." + item.destinations.toString()) == true,
                 onClick = {
                     navController.navigate(item.destinations) {
                         popUpTo(navController.graph.startDestinationId) {
@@ -75,3 +77,10 @@ val bottomNavItems = listOf(
         Destinations.Settings
     )
 )
+
+@Preview(showBackground = true)
+@Composable
+fun BottomNavigationBarPreview() {
+    val navController = rememberNavController()
+    BottomNavigationBar(navController = navController)
+}
