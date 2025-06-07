@@ -20,13 +20,6 @@ class SettingsDataSource @Inject constructor(
     fun getPromptSettings(): Flow<SummaryLength> = datastoreDao.promptSettingsFlow
 
 
-    fun getDarkModeValue(): Flow<Boolean> = datastoreDao.darkModeFlow
-
-    suspend fun saveDarkModeValue(darkMode: Boolean) {
-        datastoreDao.setDarkMode(darkMode)
-
-    }
-
     suspend fun saveGeminiModel(modelName: GeminiModelName) {
         datastoreDao.setGeminiModelName(modelName)
     }

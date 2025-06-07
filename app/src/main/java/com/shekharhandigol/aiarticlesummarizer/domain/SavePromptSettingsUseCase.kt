@@ -25,22 +25,6 @@ class GetPromptSettingsUseCase @Inject constructor(
     }
 }
 
-class SaveDarkModeUseCase @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
-) : NoOutputUseCase<Boolean> {
-    override suspend fun invoke(input: Boolean) {
-        aiArticleSummarizerRepository.saveDarkModeValue(input)
-    }
-}
-
-class GetDarkModeUseCase @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
-) : NoInputUseCase<Flow<Boolean>> {
-    override suspend fun invoke(): Flow<Boolean> {
-        return aiArticleSummarizerRepository.getDarkModeValue()
-    }
-}
-
 class SaveGeminiModelUseCase @Inject constructor(
     private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
 ) : NoOutputUseCase<GeminiModelName> {

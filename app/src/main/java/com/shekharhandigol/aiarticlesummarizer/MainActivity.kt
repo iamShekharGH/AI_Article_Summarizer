@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val theme by datastoreDao.selectedAppTheme.collectAsState(initial = AppThemeOption.LIGHT)
+            val theme by datastoreDao.selectedAppTheme.collectAsState(initial = AppThemeOption.SYSTEM_DEFAULT)
 
             AIArticleSummarizerTheme(
                 selectedTheme = theme

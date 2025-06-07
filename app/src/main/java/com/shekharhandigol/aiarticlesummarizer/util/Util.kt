@@ -92,14 +92,75 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
     }
 }
 
-enum class SummaryLength(val value: String) {
+//TODO clean this up.
+enum class SummaryLengthh(val value: String) {
     SHORT("Short"), MEDIUM("Medium"), LONG("Long"), FORMATTED("Formatted")
+}
+
+//enum class SummaryType(val displayName: String, val prompt: String) {
+enum class SummaryLength(val displayName: String, val prompt: String) {
+    // Length-based summaries
+    SHORT_SUMMARY(
+        "Short Summary (Under 100 words)",
+        "Summarize the following article concisely in less than 100 words:"
+    ),
+    MEDIUM_SUMMARY(
+        "Medium Summary (Under 250 words)",
+        "Summarize the following article in less than 250 words:"
+    ),
+    LARGE_SUMMARY( // Renamed from LONG for consistency
+        "Large Summary (Under 300 words)",
+        "Summarize the following article comprehensively in less than 300 words:"
+    ),
+
+    // Formatted summary with specific bullet points
+    BULLETED_SUMMARY( // More descriptive name than "Formatted"
+        "Bulleted Summary",
+        "Please summarize the following article in simple terms, using bullet points starting with \"-» \", focusing on the main ideas and key takeaways. Ensure the summary is highly readable, easy for someone without prior knowledge to understand, and well-formatted. Avoid complex details or jargon."
+    ),
+
+    // Comprehension-focused prompts
+    GET_MAIN_PURPOSE(
+        "Article's Main Purpose",
+        "Based on the article, what is the author's main purpose or central message? Summarize it in one to two sentences."
+    ),
+    LIST_KEY_QUESTIONS(
+        "Key Questions Answered",
+        "List 3-5 key questions that this article answers or attempts to address, using '-» ' for each bullet point."
+    ),
+    BREAKDOWN_ARGUMENTS(
+        "Break Down Main Arguments",
+        "Break down the article's main arguments or claims into bullet points, using '-» ' for each point. For each argument, briefly state the core idea."
+    ),
+    IDENTIFY_KEY_TAKEAWAYS(
+        "Key Takeaways",
+        "What are the most important implications or key takeaways from this article that someone should remember? Explain in bullet points, using '-» ' for each point."
+    ),
+    SIMPLIFY_COMPLEX_IDEA(
+        "Simplify a Complex Idea",
+        "Explain the most complex concept or idea from this article in simple terms, as if explaining it to a beginner. Avoid bullet points for this explanation."
+    )
 }
 
 enum class GeminiModelName(val value: String) {
     GEMINI_PRO("gemini-pro"),
     GEMINI_PRO_VISION("gemini-pro-vision"),
     GEMINI_1_5_FLASH("gemini-1.5-flash"),
-    GEMINI_1_5_PRO("gemini-1.5-pro")
+    GEMINI_1_5_PRO("gemini-1.5-pro"),
+    GEMINI_2_0_FLASH("gemini-2.0-flash")
+}
 
+enum class AppThemeOption {
+    SYSTEM_DEFAULT,
+    LIGHT,
+    DARK,
+    LIGHT_MEDIUM_CONTRAST,
+    LIGHT_HIGH_CONTRAST,
+    DARK_MEDIUM_CONTRAST,
+    DARK_HIGH_CONTRAST
+}
+
+fun AppThemeOption.toDisplayString(): String {
+    return this.name.replace("_", " ").lowercase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }
