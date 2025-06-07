@@ -11,10 +11,10 @@ import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME
 @Dao
 interface ArticleDao {
 
-    @Query("SELECT * FROM $DATABASE_NAME")
+    @Query("SELECT * FROM $DATABASE_NAME ORDER BY articleId DESC")
     fun getAllArticles(): List<Article>
 
-    @Query("SELECT * FROM $DATABASE_NAME WHERE favouriteArticles = 1")
+    @Query("SELECT * FROM $DATABASE_NAME WHERE favouriteArticles = 1 ORDER BY articleId DESC")
     fun getAllFavoriteArticles(): List<Article>
 
     @Query("SELECT * FROM $DATABASE_NAME WHERE articleId = :articleId")

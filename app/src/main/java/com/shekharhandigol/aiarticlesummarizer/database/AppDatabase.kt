@@ -12,11 +12,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun summaryDao(): SummaryDao
 }
 
-val MIGRATION_1_2 = object : Migration(2, 3) { // From old version 1 to new version 2
+val MIGRATION_2_3 = object : Migration(2, 3) { // From old version 1 to new version 2
     override fun migrate(db: SupportSQLiteDatabase) {
         // Migration for Article table
         db.execSQL("ALTER TABLE $DATABASE_NAME ADD COLUMN tags TEXT NOT NULL DEFAULT ''") // TEXT because of TypeConverter
-        db.execSQL("ALTER TABLE $DATABASE_NAME ADD COLUMN typeOfSummary TEXT NOT NULL DEFAULT 'SHORT'")
+        db.execSQL("ALTER TABLE $DATABASE_NAME ADD COLUMN typeOfSummary TEXT NOT NULL DEFAULT 'NOT_SET'")
         db.execSQL("ALTER TABLE $DATABASE_NAME ADD COLUMN imageUrl TEXT NOT NULL DEFAULT ''")
 
         // Migration for Summary table

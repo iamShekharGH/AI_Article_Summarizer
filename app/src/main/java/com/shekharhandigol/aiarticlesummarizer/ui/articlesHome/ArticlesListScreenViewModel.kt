@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
-import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleByIdUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetAllArticlesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArticlesListScreenViewModel @Inject constructor(
-    private val deleteArticleUseCase: DeleteArticleUseCase,
+    private val deleteArticleUseCase: DeleteArticleByIdUseCase,
     private val getArticlesUseCase: GetAllArticlesUseCase,
 ) : ViewModel() {
     private val _uiState =

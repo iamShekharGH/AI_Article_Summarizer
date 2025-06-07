@@ -1,6 +1,7 @@
 package com.shekharhandigol.aiarticlesummarizer.data
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.google.firebase.Firebase
@@ -28,7 +29,7 @@ class GeminiApiService @Inject constructor(
     }
     private fun getFirebaseModel(): com.google.firebase.ai.GenerativeModel {
         val model = Firebase.ai(backend = GenerativeBackend.vertexAI())
-            .generativeModel("gemini-2.0-flash")
+            .generativeModel(GeminiModelName.GEMINI_2_0_FLASH.value)
         return model
     }
 
@@ -38,6 +39,8 @@ class GeminiApiService @Inject constructor(
             response.text
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.d("GeminiApiService", "sendPromptFirebase: ${e.message}")
+
             "Could not generate response"
         }
     }

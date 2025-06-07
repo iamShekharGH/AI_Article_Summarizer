@@ -25,4 +25,7 @@ sealed class Destinations {
 
     @Serializable
     data object ChooseTheme : Destinations()
+
+    @Serializable
+    data class WebView(val url: String) : Destinations()
 }

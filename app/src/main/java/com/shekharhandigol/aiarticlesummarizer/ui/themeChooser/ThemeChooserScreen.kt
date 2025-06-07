@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
+import com.shekharhandigol.aiarticlesummarizer.util.toDisplayString
 
 @Composable
 fun ThemeChooserScreen() {
@@ -39,8 +40,7 @@ fun ThemeChooserScreen() {
                     onClick = null // Handled by Row's selectable modifier
                 )
                 Text(
-                    text = themeOption.name.replace("_", " ").lowercase()
-                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+                    text = themeOption.toDisplayString(),
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

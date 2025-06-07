@@ -86,7 +86,7 @@ fun ArticleInputScreen(
     var showSaveDialog by remember { mutableStateOf(false) }
     var url by remember { mutableStateOf("") }
 
-    LaunchedEffect(sharedUrl) {
+    LaunchedEffect(Unit) {
         if (sharedUrl is SharedUrl.Url) {
             url = sharedUrl.url
         }
@@ -185,7 +185,9 @@ fun ArticleInputScreen(
                         showSaveDialog = true
                     }
 
-                    resultText = screenStateValue.toString()
+                    resultText =
+                        "Title: ${screenStateValue.geminiJsoupResponseUiModel.title}\n" +
+                                "\nSummary: ${screenStateValue.geminiJsoupResponseUiModel.onSummarise}"
                 }
             }
             Text(

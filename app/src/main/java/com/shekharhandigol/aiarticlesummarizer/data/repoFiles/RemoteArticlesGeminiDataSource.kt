@@ -7,11 +7,7 @@ import androidx.core.graphics.createBitmap
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponse
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
-import com.shekharhandigol.aiarticlesummarizer.data.FULL_DETAILS_WITH_BULLET_POINTS
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
-import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_LARGE
-import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_MEDIUM
-import com.shekharhandigol.aiarticlesummarizer.data.SUMMARIZE_ARTICLE_PROMPT_SHORT
 import com.shekharhandigol.aiarticlesummarizer.data.mappers.toUiModel
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
 import kotlinx.coroutines.Dispatchers
@@ -48,17 +44,14 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
     }
 
     fun summarizeArticle(
-        url: String
+        url: String,
+        summaryLength: SummaryLength? = null
     ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> = flow {
 
-        val promptSettings =
-            settingsDataSource.getPromptSettings().firstOrNull() ?: SummaryLength.MEDIUM
-        val prompt = when (promptSettings) {
-            SummaryLength.SHORT -> SUMMARIZE_ARTICLE_PROMPT_SHORT
-            SummaryLength.MEDIUM -> SUMMARIZE_ARTICLE_PROMPT_MEDIUM
-            SummaryLength.LONG -> SUMMARIZE_ARTICLE_PROMPT_LARGE
-            SummaryLength.FORMATTED -> FULL_DETAILS_WITH_BULLET_POINTS
-        }
+        val promptSettings = summaryLength ?: settingsDataSource.getPromptSettings().firstOrNull()
+        ?: SummaryLength.MEDIUM_SUMMARY
+
+        val prompt = promptSettings.prompt
         val articleSummary = returnTextToSummarize(url)
         val text = prompt + "\n" + articleSummary.toSummarise
 
@@ -66,7 +59,14 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
         if (summary.isNullOrEmpty()) {
             emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
         } else {
-            emit(AiSummariserResult.Success(articleSummary.copy(onSummarise = summary).toUiModel()))
+            emit(
+                AiSummariserResult.Success(
+                    articleSummary.copy(
+                        onSummarise = summary,
+                        articleUrl = url
+                    ).toUiModel()
+                )
+            )
         }
 
     }.onStart { emit(AiSummariserResult.Loading) }

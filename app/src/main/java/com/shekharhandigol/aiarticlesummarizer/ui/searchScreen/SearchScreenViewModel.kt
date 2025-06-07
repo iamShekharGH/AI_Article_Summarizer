@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
-import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleByIdUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SearchArticleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     private val searchArticleUseCase: SearchArticleUseCase,
-    private val deleteArticleUseCase: DeleteArticleUseCase
+    private val deleteArticleUseCase: DeleteArticleByIdUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SearchScreenUiStates>(SearchScreenUiStates.Initial)

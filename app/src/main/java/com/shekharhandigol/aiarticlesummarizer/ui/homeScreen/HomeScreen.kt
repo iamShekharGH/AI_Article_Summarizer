@@ -18,17 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import com.shekharhandigol.aiarticlesummarizer.SharedUrl
-import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
-import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen.MainFavouriteArticlesScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.searchScreen.LocalSearchScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.settings.MainSettingsScreen
-import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.SummaryScreen
+import com.shekharhandigol.aiarticlesummarizer.ui.homeScreen.navHost.HomeScreenNavHost
+import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.MainSummaryScreen
 import kotlinx.coroutines.launch
 
 
@@ -43,22 +35,12 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-//            TopAppBar(title = { Text("Summarized Articles") })
-        },
         bottomBar = {
             BottomNavigationBar(navController = navController)
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
-        floatingActionButton = {
-            /*FloatingActionButton(onClick = {
-
-            }) {
-                Icon(Icons.Filled.Add, contentDescription = "Summarize Article")
-            }*/
-        }
     ) { paddingValues ->
 
         Surface(modifier = Modifier.padding(paddingValues)) {
@@ -79,7 +61,6 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         actionLabel = "Dismiss",
                     )
                 }
-
             }
 
             HomeScreenUiStates.Loading -> {
@@ -94,29 +75,33 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
             }
 
             is HomeScreenUiStates.Success -> {
-                SummaryScreen(
+                MainSummaryScreen(
                     articleWithSummaries = state.articleWithSummaryUiModel,
-                    sheetState = sheetState,
+//                    sheetState = sheetState,
                     onDismiss = {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
-                    addToFavorites = viewModel::addToFavorites,
-                    deleteArticle = viewModel::deleteArticle
+                    deleteArticle = viewModel::deleteArticle,
+                    openWebView = { url: String ->
+                        navController.navigate(Destinations.WebView(url))
+                    }
                 )
             }
 
             is HomeScreenUiStates.ShowLavarisArticle -> {
-                SummaryScreen(
+                MainSummaryScreen(
                     articleWithSummaries = state.articleWithSummaries,
-                    sheetState = sheetState,
+//                    sheetState = sheetState,
                     onDismiss = {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
-                    addToFavorites = { _, _ -> },
                     deleteArticle = { },
-                    showFavoriteButton = false
+                    showFavoriteButton = false,
+                    openWebView = { url: String ->
+                        navController.navigate(Destinations.WebView(url))
+                    }
                 )
             }
 
@@ -127,33 +112,3 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
     }
 }
 
-
-@Composable
-fun HomeScreenNavHost(
-    navController: NavHostController,
-    onArticleClick: (Int) -> Unit,
-    showJustSummarizedText: (ArticleWithSummaryUiModel) -> Unit,
-    url: SharedUrl
-) {
-    NavHost(navController = navController, startDestination = Destinations.MainHome) {
-        navigation<Destinations.MainHome>(startDestination = if (url == SharedUrl.None) Destinations.Home else Destinations.Search) {
-
-            composable<Destinations.Home> { MainArticleListScreen(onArticleClick) }
-            composable<Destinations.Search> {
-                MainArticleInputScreen(
-                    onArticleClick,
-                    showJustSummarizedText,
-                    url
-                )
-            }
-            composable<Destinations.List> {
-                LocalSearchScreen(
-                    onArticleClick = onArticleClick
-                )
-            }
-            composable<Destinations.FavouriteList> { MainFavouriteArticlesScreen(onArticleClick) }
-            composable<Destinations.Settings> { MainSettingsScreen() }
-        }
-
-    }
-}

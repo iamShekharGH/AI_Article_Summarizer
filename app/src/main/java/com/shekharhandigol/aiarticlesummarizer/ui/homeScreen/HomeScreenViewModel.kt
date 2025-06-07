@@ -6,7 +6,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.domain.AddToFavoritesUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.ArticleWithSummariesUseCase
-import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val articleWithSummariesUseCase: ArticleWithSummariesUseCase,
     private val addArticleToFavoritesUseCase: AddToFavoritesUseCase,
-    private val deleteArticleUseCase: DeleteArticleUseCase
+    private val deleteArticleUseCase: DeleteArticleByIdUseCase
 ) : ViewModel() {
 
     private val _articleWithSummaries =
@@ -49,12 +49,6 @@ class HomeScreenViewModel @Inject constructor(
 
     fun resetState() {
         _articleWithSummaries.value = HomeScreenUiStates.Idle
-    }
-
-    fun addToFavorites(articleId: Int, currentFavouriteState: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            addArticleToFavoritesUseCase(Pair(articleId, currentFavouriteState))
-        }
     }
 
     fun deleteArticle(articleId: Int) {

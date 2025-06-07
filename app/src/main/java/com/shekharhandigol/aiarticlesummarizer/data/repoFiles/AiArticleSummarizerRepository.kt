@@ -70,13 +70,6 @@ class AiArticleSummarizerRepository @Inject constructor(
     fun getPromptSettings(): Flow<SummaryLength> = settingsDataSource.getPromptSettings()
 
 
-    fun getDarkModeValue(): Flow<Boolean> = settingsDataSource.getDarkModeValue()
-
-    suspend fun saveDarkModeValue(darkMode: Boolean) {
-        settingsDataSource.saveDarkModeValue(darkMode)
-
-    }
-
     suspend fun saveGeminiModel(modelName: GeminiModelName) {
         settingsDataSource.saveGeminiModel(modelName)
     }

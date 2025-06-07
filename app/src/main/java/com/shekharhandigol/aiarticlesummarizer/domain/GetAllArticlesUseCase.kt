@@ -16,11 +16,3 @@ class GetAllArticlesUseCase @Inject constructor(
     }
 }
 
-class DeleteArticleUseCase @Inject constructor(
-    private val repository: AiArticleSummarizerRepository
-) : NoOutputUseCase<Int> {
-
-    override suspend fun invoke(input: Int) {
-        repository.deleteArticleById(input)
-    }
-}
