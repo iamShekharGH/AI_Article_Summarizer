@@ -108,15 +108,15 @@ class ArticleInputScreenViewModel @Inject constructor(
             val data = screenStateValue.geminiJsoupResponseUiModel
             val articleUiModel = ArticleUiModel(
                 title = data.title,
-                articleUrl = "",
-                favouriteArticles = false,
+                articleUrl = data.articleUrl,
+                favouriteArticles = data.favouriteArticles,
                 imageUrl = data.imageUrl,
-                typeOfSummary = "MEDIUM"
+                typeOfSummary = data.typeOfSummary,
             )
             val summaryUiModel = SummaryUiModel(
                 summaryText = data.onSummarise,
                 ogText = data.toSummarise,
-                articleId = -1
+                articleId = data.articleId,
             )
             return ArticleWithSummaryUiModel(
                 articleUiModel = articleUiModel,

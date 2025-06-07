@@ -42,9 +42,9 @@ class LocalStorageDataSource @Inject constructor(
 
     fun favouriteThisArticle(articleId: Int, currentFavouriteState: Boolean) {
         if (currentFavouriteState) {
-            articleDao.removeFavouriteFromThisArticle(articleId)
-        } else {
             articleDao.favouriteThisArticle(articleId)
+        } else {
+            articleDao.removeFavouriteFromThisArticle(articleId)
         }
     }
 
