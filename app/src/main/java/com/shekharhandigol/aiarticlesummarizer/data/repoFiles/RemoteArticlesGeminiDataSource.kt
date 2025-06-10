@@ -9,7 +9,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponse
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
 import com.shekharhandigol.aiarticlesummarizer.data.mappers.toUiModel
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -45,11 +45,11 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
 
     fun summarizeArticle(
         url: String,
-        summaryLength: SummaryLength? = null
+        summaryLength: SummaryType? = null
     ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> = flow {
 
         val promptSettings = summaryLength ?: settingsDataSource.getPromptSettings().firstOrNull()
-        ?: SummaryLength.MEDIUM_SUMMARY
+        ?: SummaryType.MEDIUM_SUMMARY
 
         val prompt = promptSettings.prompt
         val articleSummary = returnTextToSummarize(url)
@@ -63,7 +63,8 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
                 AiSummariserResult.Success(
                     articleSummary.copy(
                         onSummarise = summary,
-                        articleUrl = url
+                        articleUrl = url,
+                        typeOfSummary = promptSettings.displayName,
                     ).toUiModel()
                 )
             )

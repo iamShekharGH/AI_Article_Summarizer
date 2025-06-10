@@ -25,7 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.util.toDisplayString
 
 @Composable
@@ -61,10 +61,10 @@ fun MainSettingsScreen(
 
 @Composable
 fun SettingsScreen(
-    promptSettings: State<SummaryLength>,
+    promptSettings: State<SummaryType>,
     geminiModelName: State<GeminiModelName>,
     themeName: State<AppThemeOption>,
-    setSummaryLength: (SummaryLength) -> Unit,
+    setSummaryLength: (SummaryType) -> Unit,
     onGeminiModelChange: (GeminiModelName) -> Unit,
     openThemesChooser: () -> Unit
 ) {
@@ -94,7 +94,7 @@ fun SettingsScreen(
                     expanded = summaryMenuExpanded,
                     onDismissRequest = { summaryMenuExpanded = false }
                 ) {
-                    SummaryLength.entries.forEach { summaryLengthOption ->
+                    SummaryType.entries.forEach { summaryLengthOption ->
                         DropdownMenuItem(
                             text = {
                                 Text(
@@ -164,7 +164,7 @@ fun SettingsScreen(
 @Composable
 fun PreviewSettingsScreen() {
     remember { mutableStateOf(true) }
-    val promptSettings = remember { mutableStateOf(SummaryLength.MEDIUM_SUMMARY) }
+    val promptSettings = remember { mutableStateOf(SummaryType.MEDIUM_SUMMARY) }
     val geminiModel = remember { mutableStateOf(GeminiModelName.GEMINI_1_5_FLASH) }
     val themeName = remember { mutableStateOf(AppThemeOption.LIGHT_HIGH_CONTRAST) }
     SettingsScreen(

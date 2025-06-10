@@ -92,13 +92,7 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
     }
 }
 
-//TODO clean this up.
-enum class SummaryLengthh(val value: String) {
-    SHORT("Short"), MEDIUM("Medium"), LONG("Long"), FORMATTED("Formatted")
-}
-
-//enum class SummaryType(val displayName: String, val prompt: String) {
-enum class SummaryLength(val displayName: String, val prompt: String) {
+enum class SummaryType(val displayName: String, val prompt: String) {
     // Length-based summaries
     SHORT_SUMMARY(
         "Short Summary (Under 100 words)",

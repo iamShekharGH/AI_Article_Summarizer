@@ -9,7 +9,7 @@ import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_GEMINI_MODEL_NAME
 import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_PROMPT_SETTINGS
 import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_THEME_NAME
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -24,16 +24,16 @@ class DatastoreDao @Inject constructor(private val dataStore: DataStore<Preferen
     private val themePreferenceKey = stringPreferencesKey(DATASTORE_THEME_NAME)
 
 
-    val promptSettingsFlow: Flow<SummaryLength> = dataStore.data
+    val promptSettingsFlow: Flow<SummaryType> = dataStore.data
         .map { preferences ->
-            SummaryLength.entries.find { it.displayName == preferences[promptSettingsPreferenceKey] }
-                ?: SummaryLength.MEDIUM_SUMMARY
+            SummaryType.entries.find { it.displayName == preferences[promptSettingsPreferenceKey] }
+                ?: SummaryType.MEDIUM_SUMMARY
         }.catch { exception ->
             exception.printStackTrace()
-            emit(SummaryLength.MEDIUM_SUMMARY)
+            emit(SummaryType.MEDIUM_SUMMARY)
         }
 
-    suspend fun savePromptSettings(length: SummaryLength) {
+    suspend fun savePromptSettings(length: SummaryType) {
         dataStore.edit { preferences ->
             preferences[promptSettingsPreferenceKey] = length.displayName
         }

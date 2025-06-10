@@ -8,7 +8,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -63,11 +63,11 @@ class AiArticleSummarizerRepository @Inject constructor(
     suspend fun deleteArticleById(articleId: Int) =
         localStorageDataSource.deleteArticleById(articleId)
 
-    suspend fun savePromptSettings(summaryLength: SummaryLength) {
+    suspend fun savePromptSettings(summaryLength: SummaryType) {
         settingsDataSource.savePromptSettings(summaryLength)
     }
 
-    fun getPromptSettings(): Flow<SummaryLength> = settingsDataSource.getPromptSettings()
+    fun getPromptSettings(): Flow<SummaryType> = settingsDataSource.getPromptSettings()
 
 
     suspend fun saveGeminiModel(modelName: GeminiModelName) {
