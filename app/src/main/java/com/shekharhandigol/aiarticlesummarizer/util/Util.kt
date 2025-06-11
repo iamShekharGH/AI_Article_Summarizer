@@ -1,5 +1,6 @@
 package com.shekharhandigol.aiarticlesummarizer.util
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -23,22 +24,33 @@ fun getDayOfMonthSuffix(millis: Long): String {
 }
 
 fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
+    Log.d("simpleMarkdownToAnnotatedString", "Before processing: $text")
     return buildAnnotatedString {
-
+        Log.d("simpleMarkdownToAnnotatedString", "Starting buildAnnotatedString")
         var currentIndex = 0
 
+        // Regex to match all supported markdown patterns,
+        // prioritizing more specific patterns like bold over generic italic,
+        // and handling newlines and list items separately if needed.
+        // The list item regex now specifically looks for a newline followed by '* ' or a line start with '* '
         val combinedRegex =
-            """(\*\*(.*?)\*\*)|(\*(.*?)\*)|(_ (.*?)_)|(\[([^]]+)]\(([^)]+)\))|(\n\s*-»\s+(.*))""".toRegex()
-//            """(\*\*(.*?)\*\*)|(\*(.*?)\*)|(\_ (.*?)\_)|(\[([^\]]+)\]\(([^)]+)\))""".toRegex()
+            """(?m)(\*\*(.*?)\*\*)|(\*(.*?)\*)|(_(.*?)_)|(\[([^\]]+)]\(([^)]+)\))|((?:^|\n)\*\s+(.*))""".toRegex()
+        // Group 1: **bold** (2: content)
+        // Group 3: *italic* (4: content)
+        // Group 5: _italic_ (6: content)
+        // Group 7: [linkText](url) (8: linkText, 9: url)
+        // Group 10: List Item: (?:^|\n)\*\s+(.*) (11: content)
+
         combinedRegex.findAll(text).forEach { matchResult ->
             val matchStart = matchResult.range.first
             val matchEnd = matchResult.range.last + 1
 
-            // Append text before the match
+            // Append text before the current match
             if (matchStart > currentIndex) {
                 append(text.substring(currentIndex, matchStart))
             }
 
+            // Determine which markdown pattern matched
             when {
                 // Bold: **text**
                 matchResult.groups[1] != null -> {
@@ -71,15 +83,32 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
                             textDecoration = TextDecoration.Underline
                         )
                     )
-                    // Add an annotation for the URL, which can be retrieved for click handling
                     addStringAnnotation(
                         tag = "URL",
                         annotation = url,
-                        start = length, // current length of annotated string
+                        start = length,
                         end = length + linkText.length
                     )
                     append(linkText)
                     pop()
+                }
+                // List Item: (?:^|\n)* content
+                matchResult.groups[10] != null -> {
+                    // This handles the newline character if it was part of the match
+                    if (matchResult.value.startsWith("\n")) {
+                        append("\n")
+                    } else if (matchStart != 0) { // If it's not the very beginning, ensure a newline if it's a new list item
+                        append("\n")
+                    }
+
+                    pushStyle(SpanStyle(fontWeight = FontWeight.Bold)) // Bullet point style
+                    append("• ") // The desired bullet symbol
+                    pop()
+
+                    // Extract the content *after* the bullet marker for further processing
+                    val rawContent = matchResult.groups[11]!!.value
+                    // Process this raw content for nested markdown (bold, italic, link)
+                    append(simpleMarkdownToAnnotatedString(rawContent))
                 }
             }
             currentIndex = matchEnd
@@ -87,10 +116,18 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
 
         // Append any remaining text after the last match
         if (currentIndex < text.length) {
+            Log.d(
+                "simpleMarkdownToAnnotatedString",
+                "Appending remaining text: ${text.substring(currentIndex)}"
+            )
             append(text.substring(currentIndex))
         }
+        Log.d("simpleMarkdownToAnnotatedString", "Finished buildAnnotatedString")
+    }.also {
+        Log.d("simpleMarkdownToAnnotatedString", "After processing, AnnotatedString: $it")
     }
 }
+
 
 enum class SummaryType(val displayName: String, val prompt: String) {
     // Length-based summaries
