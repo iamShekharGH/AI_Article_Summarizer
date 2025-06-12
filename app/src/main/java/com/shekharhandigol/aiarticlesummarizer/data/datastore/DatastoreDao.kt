@@ -1,18 +1,15 @@
 package com.shekharhandigol.aiarticlesummarizer.data.datastore
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
-import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_DARK_MODE
 import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_GEMINI_MODEL_NAME
 import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_PROMPT_SETTINGS
 import com.shekharhandigol.aiarticlesummarizer.util.DATASTORE_THEME_NAME
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -24,36 +21,19 @@ class DatastoreDao @Inject constructor(private val dataStore: DataStore<Preferen
 
     private val promptSettingsPreferenceKey = stringPreferencesKey(DATASTORE_PROMPT_SETTINGS)
     private val geminiModelNamePreferenceKey = stringPreferencesKey(DATASTORE_GEMINI_MODEL_NAME)
-    private val darkModePreferenceKey = booleanPreferencesKey(DATASTORE_DARK_MODE)
     private val themePreferenceKey = stringPreferencesKey(DATASTORE_THEME_NAME)
 
 
-    val darkModeFlow: Flow<Boolean> = dataStore.data
+    val promptSettingsFlow: Flow<SummaryType> = dataStore.data
         .map { preferences ->
-            preferences[darkModePreferenceKey] == true
+            SummaryType.entries.find { it.displayName == preferences[promptSettingsPreferenceKey] }
+                ?: SummaryType.MEDIUM_SUMMARY
         }.catch { exception ->
             exception.printStackTrace()
-            Log.e("DatastoreDao", "Error reading dark mode preference: ${exception.message}")
-            emit(false)
+            emit(SummaryType.MEDIUM_SUMMARY)
         }
 
-    suspend fun setDarkMode(isDarkMode: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[darkModePreferenceKey] = isDarkMode
-        }
-    }
-
-
-    val promptSettingsFlow: Flow<SummaryLength> = dataStore.data
-        .map { preferences ->
-            SummaryLength.entries.find { it.displayName == preferences[promptSettingsPreferenceKey] }
-                ?: SummaryLength.MEDIUM_SUMMARY
-        }.catch { exception ->
-            exception.printStackTrace()
-            emit(SummaryLength.MEDIUM_SUMMARY)
-        }
-
-    suspend fun savePromptSettings(length: SummaryLength) {
+    suspend fun savePromptSettings(length: SummaryType) {
         dataStore.edit { preferences ->
             preferences[promptSettingsPreferenceKey] = length.displayName
         }
@@ -81,6 +61,7 @@ class DatastoreDao @Inject constructor(private val dataStore: DataStore<Preferen
             try {
                 AppThemeOption.valueOf(themeName)
             } catch (e: IllegalArgumentException) {
+                e.printStackTrace()
                 AppThemeOption.SYSTEM_DEFAULT
             }
         }

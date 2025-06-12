@@ -2,17 +2,15 @@ package com.shekharhandigol.aiarticlesummarizer.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.domain.GetDarkModeUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetPromptSettingsUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetThemeNameUseCase
-import com.shekharhandigol.aiarticlesummarizer.domain.SaveDarkModeUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SavePromptSettingsUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveThemeNameUseCase
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,19 +22,14 @@ import javax.inject.Inject
 class SettingsScreenViewModel @Inject constructor(
     private val savePromptSettingsUseCase: SavePromptSettingsUseCase,
     private val getPromptSettingsUseCase: GetPromptSettingsUseCase,
-    private val saveDarkModeUseCase: SaveDarkModeUseCase,
-    private val getDarkModeUseCase: GetDarkModeUseCase,
     private val saveGeminiModelUseCase: SaveGeminiModelUseCase,
     private val getGeminiModelUseCase: GetGeminiModelUseCase,
     private val getThemeNameUseCase: GetThemeNameUseCase,
     private val saveThemeNameUseCase: SaveThemeNameUseCase
 ) : ViewModel() {
 
-    private val _promptSettings = MutableStateFlow(SummaryLength.MEDIUM_SUMMARY)
+    private val _promptSettings = MutableStateFlow(SummaryType.MEDIUM_SUMMARY)
     val promptSettings = _promptSettings.asStateFlow()
-
-    private val _darkMode = MutableStateFlow(false)
-    val darkMode = _darkMode.asStateFlow()
 
     private val _geminiModel = MutableStateFlow(GeminiModelName.GEMINI_1_5_FLASH)
     val geminiModel = _geminiModel.asStateFlow()
@@ -45,7 +38,7 @@ class SettingsScreenViewModel @Inject constructor(
     val themeName = _themeName.asStateFlow()
 
 
-    fun saveSummariesPromptSettings(summaryLength: SummaryLength) {
+    fun saveSummariesPromptSettings(summaryLength: SummaryType) {
         viewModelScope.launch(Dispatchers.IO) {
             savePromptSettingsUseCase(summaryLength)
         }
@@ -62,25 +55,6 @@ class SettingsScreenViewModel @Inject constructor(
     fun setGeminiModel(modelName: GeminiModelName) {
         _geminiModel.value = modelName
         saveGeminiModel(modelName)
-    }
-
-    fun setDarkModeValue(setDarkMode: Boolean) {
-        _darkMode.value = setDarkMode
-        saveDarkModeValue(setDarkMode)
-    }
-
-    private fun saveDarkModeValue(setDarkMode: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            saveDarkModeUseCase(setDarkMode)
-        }
-    }
-
-    fun getDarkModeValue() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getDarkModeUseCase().collect { result ->
-                _darkMode.value = result
-            }
-        }
     }
 
     private fun saveGeminiModel(modelName: GeminiModelName) {

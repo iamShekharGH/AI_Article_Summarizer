@@ -3,41 +3,25 @@ package com.shekharhandigol.aiarticlesummarizer.domain
 import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class SavePromptSettingsUseCase @Inject constructor(
     private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
-) : NoOutputUseCase<SummaryLength> {
+) : NoOutputUseCase<SummaryType> {
 
-    override suspend fun invoke(input: SummaryLength) {
+    override suspend fun invoke(input: SummaryType) {
         aiArticleSummarizerRepository.savePromptSettings(input)
     }
 }
 
 class GetPromptSettingsUseCase @Inject constructor(
     private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
-) : NoInputUseCase<Flow<SummaryLength>> {
+) : NoInputUseCase<Flow<SummaryType>> {
 
-    override suspend fun invoke(): Flow<SummaryLength> {
+    override suspend fun invoke(): Flow<SummaryType> {
         return aiArticleSummarizerRepository.getPromptSettings()
-    }
-}
-
-class SaveDarkModeUseCase @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
-) : NoOutputUseCase<Boolean> {
-    override suspend fun invoke(input: Boolean) {
-        aiArticleSummarizerRepository.saveDarkModeValue(input)
-    }
-}
-
-class GetDarkModeUseCase @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
-) : NoInputUseCase<Flow<Boolean>> {
-    override suspend fun invoke(): Flow<Boolean> {
-        return aiArticleSummarizerRepository.getDarkModeValue()
     }
 }
 
