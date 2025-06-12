@@ -73,7 +73,6 @@ fun MainSummaryScreen(
         density = Density(1f),
     ),
     onDismiss: () -> Unit,
-    deleteArticle: (Int) -> Unit,
     showFavoriteButton: Boolean = true,
     openWebView: (String) -> Unit
 ) {
@@ -103,7 +102,7 @@ fun MainSummaryScreen(
                 articleWithSummaries = stateValue.data,
                 onDismiss = onDismiss,
                 addToFavorites = viewModel::favouriteThisArticle,
-                deleteArticle = deleteArticle,
+                deleteArticle = viewModel::deleteArticle,
                 saveArticle = viewModel::saveArticleToDb,
                 showFavoriteButton = showFavoriteButton,
                 sheetState = sheetState,

@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArticleSummaryViewModel @Inject constructor(
-    private val summarizeArticleUseCase: SaveArticleToDbUseCase,
+    private val saveArticleToDbUseCase: SaveArticleToDbUseCase,
     private val favoritesUseCase: AddToFavoritesUseCase,
     private val deleteArticleUseCase: DeleteArticleByIdUseCase,
     private val getArticleWithSummariesUseCase: ArticleWithSummariesUseCase
@@ -27,8 +27,23 @@ class ArticleSummaryViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     fun saveArticleToDb(input: ArticleWithSummaryUiModel) {
-        viewModelScope.launch {
-            summarizeArticleUseCase(input)
+        viewModelScope.launch(Dispatchers.IO) {
+            saveArticleToDbUseCase(input).collect { result ->
+                when (result) {
+                    is AiSummariserResult.Error -> {
+                        _uiState.value =
+                            ArticleSummaryState.Error(result.exception.message.toString())
+                    }
+
+                    AiSummariserResult.Loading -> {
+                        _uiState.value = ArticleSummaryState.Loading
+                    }
+
+                    is AiSummariserResult.Success -> {
+                        fetchArticleSummary(result.data.toInt())
+                    }
+                }
+            }
         }
     }
 
@@ -42,6 +57,12 @@ class ArticleSummaryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             favoritesUseCase(Pair(articleId, setThisAsFavouriteState))
             fetchArticleSummary(articleId)
+        }
+    }
+
+    fun deleteArticle(articleId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteArticleUseCase(articleId)
         }
     }
 
