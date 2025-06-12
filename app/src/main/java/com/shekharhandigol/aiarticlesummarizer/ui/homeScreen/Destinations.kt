@@ -28,4 +28,7 @@ sealed class Destinations {
 
     @Serializable
     data class WebView(val url: String) : Destinations()
+
+    @Serializable
+    data object Login : Destinations()
 }
