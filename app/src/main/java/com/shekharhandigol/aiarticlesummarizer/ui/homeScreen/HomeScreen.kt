@@ -82,7 +82,6 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
-                    deleteArticle = viewModel::deleteArticle,
                     openWebView = { url: String ->
                         navController.navigate(Destinations.WebView(url))
                     }
@@ -97,7 +96,6 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
-                    deleteArticle = { },
                     showFavoriteButton = false,
                     openWebView = { url: String ->
                         navController.navigate(Destinations.WebView(url))
