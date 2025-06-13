@@ -6,7 +6,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.shekharhandigol.aiarticlesummarizer.SharedUrl
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.MainArticleInputScreen
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.MainArticleListScreen
@@ -23,19 +22,16 @@ import com.shekharhandigol.aiarticlesummarizer.ui.themeChooser.ThemeChooserScree
 fun HomeScreenNavHost(
     navController: NavHostController,
     onArticleClick: (Int) -> Unit,
-    showJustSummarizedText: (ArticleWithSummaryUiModel) -> Unit,
-    url: SharedUrl
+    showJustSummarizedText: (ArticleWithSummaryUiModel) -> Unit
 ) {
     NavHost(navController = navController, startDestination = Destinations.MainHome) {
-        navigation<Destinations.MainHome>(startDestination = if (url == SharedUrl.None) Destinations.Home else Destinations.Search) {
-//        navigation<Destinations.MainHome>(startDestination = Destinations.Login) {
+        navigation<Destinations.MainHome>(startDestination = Destinations.Home) {
 
             composable<Destinations.Home> { MainArticleListScreen(onArticleClick) }
             composable<Destinations.Search> {
                 MainArticleInputScreen(
                     onArticleClick,
-                    showJustSummarizedText,
-                    url
+                    showJustSummarizedText
                 )
             }
             composable<Destinations.List> {

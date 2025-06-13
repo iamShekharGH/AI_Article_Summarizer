@@ -10,6 +10,7 @@ data class GeminiJsoupResponse(
     val articleUrl: String = "",
     val articleId: Int = -1,
     val summaryId: Int = -1,
+    val tags: List<String> = emptyList()
 )
 
 data class GeminiJsoupResponseUiModel(
@@ -22,4 +23,5 @@ data class GeminiJsoupResponseUiModel(
     val articleUrl: String = "",
     val articleId: Int = -1,
     val summaryId: Int = -1,
+    val tags: List<String> = emptyList()
 )

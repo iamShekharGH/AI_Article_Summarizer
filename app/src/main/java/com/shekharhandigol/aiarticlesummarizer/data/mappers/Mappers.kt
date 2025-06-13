@@ -84,7 +84,8 @@ fun GeminiJsoupResponse.toUiModel(): GeminiJsoupResponseUiModel = GeminiJsoupRes
     typeOfSummary = typeOfSummary,
     articleUrl = articleUrl,
     articleId = articleId,
-    summaryId = summaryId
+    summaryId = summaryId,
+    tags = tags
 )
 
 fun GeminiJsoupResponseUiModel.toArticleWithSummaryUiModel(): ArticleWithSummaryUiModel {
@@ -95,6 +96,7 @@ fun GeminiJsoupResponseUiModel.toArticleWithSummaryUiModel(): ArticleWithSummary
         imageUrl = this.imageUrl,
         typeOfSummary = this.typeOfSummary,
         articleId = this.articleId,
+        tags = this.tags,
     )
     val summaryUiModel = SummaryUiModel(
         summaryText = this.onSummarise,
