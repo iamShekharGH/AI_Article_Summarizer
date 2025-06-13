@@ -44,6 +44,12 @@ class AiArticleSummarizerRepository @Inject constructor(
     fun getAllFavoriteArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.getAllFavoriteArticles()
 
+    fun getAllTags(): Flow<AiSummariserResult<List<String>>> =
+        localStorageDataSource.getAllTags()
+
+    fun getArticlesByTag(tag: String): Flow<AiSummariserResult<List<ArticleUiModel>>> =
+        localStorageDataSource.getArticlesByTag(tag)
+
     fun favouriteThisArticle(articleId: Int, currentFavouriteState: Boolean) {
         localStorageDataSource.favouriteThisArticle(articleId, currentFavouriteState)
     }
@@ -81,5 +87,8 @@ class AiArticleSummarizerRepository @Inject constructor(
     }
 
     fun getThemeName(): Flow<AppThemeOption> = settingsDataSource.getThemeName()
+
+    suspend fun generateTagsFromText(input: String) =
+        remoteArticlesGeminiDataSource.generateTags(input)
 
 }

@@ -7,6 +7,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.domain.AddToFavoritesUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.ArticleWithSummariesUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.DeleteArticleByIdUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.GenerateTagsFromTextTagUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveArticleToDbUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +17,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ArticleSummaryViewModel @Inject constructor(
+class SummaryScreenViewModel @Inject constructor(
     private val saveArticleToDbUseCase: SaveArticleToDbUseCase,
     private val favoritesUseCase: AddToFavoritesUseCase,
     private val deleteArticleUseCase: DeleteArticleByIdUseCase,
-    private val getArticleWithSummariesUseCase: ArticleWithSummariesUseCase
+    private val getArticleWithSummariesUseCase: ArticleWithSummariesUseCase,
+    private val generateTagsFromTextTagUseCase: GenerateTagsFromTextTagUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ArticleSummaryState>(ArticleSummaryState.EmptyState)
@@ -49,7 +51,17 @@ class ArticleSummaryViewModel @Inject constructor(
 
     fun showArticleSummary(input: ArticleWithSummaryUiModel) {
         viewModelScope.launch {
-            _uiState.value = ArticleSummaryState.Success(input)
+            val summary = input.summaryUiModel.first()
+            if (input.articleUiModel.tags.isEmpty()) {
+                generateTagsFromTextTagUseCase(summary.summaryText).collect {
+                    _uiState.value = ArticleSummaryState.Success(
+                        input.copy(
+                            articleUiModel = input.articleUiModel.copy(tags = it)
+                        )
+                    )
+                }
+            }
+
         }
     }
 

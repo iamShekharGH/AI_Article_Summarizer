@@ -69,15 +69,14 @@ fun MainSummaryScreen(
         skipPartiallyExpanded = true,
         initialValue = SheetValue.Expanded,
         confirmValueChange = { true },
-        skipHiddenState = true,
+        skipHiddenState = false,
         density = Density(1f),
     ),
     onDismiss: () -> Unit,
-    showFavoriteButton: Boolean = true,
     openWebView: (String) -> Unit
 ) {
 
-    val viewModel: ArticleSummaryViewModel = hiltViewModel()
+    val viewModel: SummaryScreenViewModel = hiltViewModel()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -104,7 +103,6 @@ fun MainSummaryScreen(
                 addToFavorites = viewModel::favouriteThisArticle,
                 deleteArticle = viewModel::deleteArticle,
                 saveArticle = viewModel::saveArticleToDb,
-                showFavoriteButton = showFavoriteButton,
                 sheetState = sheetState,
                 gotoWebView = openWebView
             )
@@ -120,7 +118,6 @@ fun SummaryScreen(
     addToFavorites: (Int, Boolean) -> Unit,
     deleteArticle: (Int) -> Unit,
     saveArticle: (ArticleWithSummaryUiModel) -> Unit,
-    showFavoriteButton: Boolean = true,
     sheetState: SheetState,
     gotoWebView: (String) -> Unit
 ) {
@@ -172,8 +169,7 @@ fun SummaryScreen(
                     ArticleImageSection(
                         article = article,
                         saveArticle = { saveArticle(articleWithSummaries) },
-                        toggleFavourite = addToFavorites,
-                        showFavoriteButton = showFavoriteButton
+                        toggleFavourite = addToFavorites
                     )
 
                 }
@@ -184,17 +180,6 @@ fun SummaryScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
-                /*item {
-                    val formattedDate = SimpleDateFormat(
-                        "d'${getDayOfMonthSuffix(article.date)}' MMMM yyyy",
-                        Locale.getDefault()
-                    ).format(Date(article.date))
-                    Text(
-                        text = "Summarized on: $formattedDate",
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-                }*/
                 item {
                     Card {
                         Column(
@@ -303,41 +288,6 @@ fun SummaryScreen(
                     }
                 }
 
-                /*item {
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        onClick = {
-                            addToFavorites(article.articleId, article.favouriteArticles)
-                            onDismiss.invoke()
-                        },
-                        enabled = showFavoriteButton
-                    ) {
-                        if (article.favouriteArticles) {
-                            Text(
-                                text = "Remove from Favorites",
-                                modifier = Modifier.padding(4.dp),
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Icon(
-                                imageVector = Icons.Filled.FavoriteBorder,
-                                contentDescription = "Favorite"
-                            )
-                        } else {
-                            Text(
-                                text = "Add to Favorites",
-                                modifier = Modifier.padding(4.dp),
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = "Favorite"
-                            )
-                        }
-                    }
-                }*/
-
                 item {
                     Button(
                         modifier = Modifier
@@ -347,24 +297,19 @@ fun SummaryScreen(
                             deleteArticle(article.articleId)
                             onDismiss.invoke()
                         },
-                        enabled = showFavoriteButton
+                        enabled = article.articleId >= 0
                     ) {
+                        Text(
+                            text = "Delete",
+                            modifier = Modifier.padding(4.dp),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                         if (article.favouriteArticles) {
-                            Text(
-                                text = "Delete",
-                                modifier = Modifier.padding(4.dp),
-                                style = MaterialTheme.typography.labelLarge
-                            )
                             Icon(
                                 imageVector = Icons.Filled.Delete,
                                 contentDescription = "Delete"
                             )
                         } else {
-                            Text(
-                                text = "Delete",
-                                modifier = Modifier.padding(4.dp),
-                                style = MaterialTheme.typography.labelLarge
-                            )
                             Icon(
                                 imageVector = Icons.Outlined.Delete,
                                 contentDescription = "Delete"

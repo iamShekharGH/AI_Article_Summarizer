@@ -26,6 +26,13 @@ interface ArticleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArticle(article: Article) : Long
 
+    @Query("SELECT tags FROM $DATABASE_NAME WHERE tags IS NOT NULL AND tags != '' AND tags != '[]'")
+    fun getAllTagsFlow(): Flow<List<String>>
+
+    @Query("SELECT * FROM $DATABASE_NAME WHERE tags LIKE '%' || :tag || '%' ORDER BY articleId DESC")
+    fun getArticlesByTag(tag: String): Flow<List<Article>>
+
+
     @Transaction
     suspend fun insertArticleAndSummaries(article: Article, summaries: List<Summary>): Long {
         val articleIdLong = insertArticle(article)
