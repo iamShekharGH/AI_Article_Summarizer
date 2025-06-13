@@ -19,6 +19,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.shekharhandigol.aiarticlesummarizer.SharedUrl
+import com.shekharhandigol.aiarticlesummarizer.ui.common.ErrorUi
+import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
 import com.shekharhandigol.aiarticlesummarizer.ui.homeScreen.navHost.HomeScreenNavHost
 import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.MainSummaryScreen
 import kotlinx.coroutines.launch
@@ -32,6 +34,10 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val homeScreenUiStates by viewModel.articleWithSummaries.collectAsStateWithLifecycle()
+
+    if (url is SharedUrl.Url) {
+        viewModel.summarizeText(url.url)
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -47,8 +53,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
             HomeScreenNavHost(
                 navController = navController,
                 onArticleClick = viewModel::getArticleWithSummaries,
-                showJustSummarizedText = viewModel::showJustSummarizedText,
-                url
+                showJustSummarizedText = viewModel::showJustSummarizedText
             )
         }
         when (val state = homeScreenUiStates) {
@@ -61,6 +66,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         actionLabel = "Dismiss",
                     )
                 }
+                ErrorUi()
             }
 
             HomeScreenUiStates.Loading -> {
@@ -72,6 +78,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         actionLabel = "Dismiss",
                     )
                 }
+                LoadingUi()
             }
 
             is HomeScreenUiStates.Success -> {
@@ -96,7 +103,6 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
-                    showFavoriteButton = false,
                     openWebView = { url: String ->
                         navController.navigate(Destinations.WebView(url))
                     }

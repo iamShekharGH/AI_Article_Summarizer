@@ -43,6 +43,30 @@ class LocalStorageDataSource @Inject constructor(
             .onStart { emit(AiSummariserResult.Loading) }
             .catch { e -> emit(AiSummariserResult.Error(e)) }
 
+    fun getAllTags(): Flow<AiSummariserResult<List<String>>> =
+        articleDao.getAllTagsFlow()
+            .map { tagsList ->
+                tagsList.flatMap { it.split(",") }.map { it.trim().removeSurrounding("[", "]") }
+                    .distinct().filter { it.isNotEmpty() }
+            }
+            .map<List<String>, AiSummariserResult<List<String>>> {
+                AiSummariserResult.Success(
+                    it
+                )
+            }
+            .onStart { emit(AiSummariserResult.Loading) }
+            .catch { e -> emit(AiSummariserResult.Error(e)) }
+
+    fun getArticlesByTag(tag: String): Flow<AiSummariserResult<List<ArticleUiModel>>> =
+        articleDao.getArticlesByTag(tag).map { list -> list.map { it.toArticleUiModel() } }
+            .map<List<ArticleUiModel>, AiSummariserResult<List<ArticleUiModel>>> {
+                AiSummariserResult.Success(
+                    it
+                )
+            }
+            .onStart { emit(AiSummariserResult.Loading) }
+            .catch { e -> emit(AiSummariserResult.Error(e)) }
+
 
     fun favouriteThisArticle(articleId: Int, setThisFavouriteState: Boolean) {
         if (setThisFavouriteState) {

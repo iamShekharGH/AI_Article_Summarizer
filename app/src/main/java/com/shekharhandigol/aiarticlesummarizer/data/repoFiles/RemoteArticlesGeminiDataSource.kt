@@ -10,6 +10,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
 import com.shekharhandigol.aiarticlesummarizer.data.mappers.toUiModel
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
+import com.shekharhandigol.aiarticlesummarizer.util.TAG_GENERATION_PROMPT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -56,6 +57,9 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
         val text = prompt + "\n" + articleSummary.toSummarise
 
         val summary = geminiApiService.sendPrompt(text)
+        val tags = generateTags(articleSummary.toSummarise)
+
+
         if (summary.isNullOrEmpty()) {
             emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
         } else {
@@ -65,6 +69,7 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
                         onSummarise = summary,
                         articleUrl = url,
                         typeOfSummary = promptSettings.displayName,
+                        tags = tags
                     ).toUiModel()
                 )
             )
@@ -93,6 +98,24 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             e.printStackTrace()
             emit(AiSummariserResult.Error(e))
         }
+
+    suspend fun generateTags(articleText: String): List<String> {
+        val tagsPrompt = "$TAG_GENERATION_PROMPT\n$articleText"
+        val rawTags = geminiApiService.sendPrompt(tagsPrompt)
+
+        return if (rawTags == null ||
+            rawTags.contains("Please provide the article content.", ignoreCase = true)
+        ) {
+            Log.w("TagsGeneration", "Error in generating tags or invalid format: $rawTags")
+            emptyList()
+        } else {
+            rawTags.replace("*", "")
+                .split(",")
+                .flatMap { it.split("\n") }
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+        }
+    }
 
     private suspend fun returnTextToSummarize(url: String): GeminiJsoupResponse {
         return withContext(Dispatchers.IO) {
@@ -140,4 +163,5 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             }
         }
     }
+
 }
