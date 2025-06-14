@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# -keep class com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient
+# -keep class com.google.api.client.json.GenericJson {
+#     <fields>;
+#     <methods>;
+# }
+# -keep class com.google.api.client.util.Data {
+#   <fields>;
+# }

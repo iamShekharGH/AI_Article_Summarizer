@@ -48,8 +48,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainArticleInputScreen(
     onArticleClick: (Int) -> Unit,
-    showJustSummarizedText: (ArticleWithSummaryUiModel) -> Unit,
-    sharedUrl: SharedUrl
+    showJustSummarizedText: (ArticleWithSummaryUiModel) -> Unit
 ) {
     val viewModel: ArticleInputScreenViewModel = hiltViewModel()
     val screenState = viewModel.summaryText.collectAsStateWithLifecycle()
@@ -62,7 +61,6 @@ fun MainArticleInputScreen(
         screenStateValue = screenState.value,
         onArticleClick = onArticleClick,
         showJustSummarizedText = showJustSummarizedText,
-        sharedUrl = sharedUrl,
         resetState = { viewModel.resetToInitial() },
         getArticleWithSummaryObj = { viewModel.getArticleWithSummaryObj() }
     )

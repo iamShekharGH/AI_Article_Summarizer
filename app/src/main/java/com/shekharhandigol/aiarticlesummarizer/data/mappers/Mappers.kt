@@ -84,5 +84,27 @@ fun GeminiJsoupResponse.toUiModel(): GeminiJsoupResponseUiModel = GeminiJsoupRes
     typeOfSummary = typeOfSummary,
     articleUrl = articleUrl,
     articleId = articleId,
-    summaryId = summaryId
+    summaryId = summaryId,
+    tags = tags
 )
+
+fun GeminiJsoupResponseUiModel.toArticleWithSummaryUiModel(): ArticleWithSummaryUiModel {
+    val articleUiModel = ArticleUiModel(
+        title = this.title,
+        articleUrl = this.articleUrl,
+        favouriteArticles = this.favouriteArticles,
+        imageUrl = this.imageUrl,
+        typeOfSummary = this.typeOfSummary,
+        articleId = this.articleId,
+        tags = this.tags,
+    )
+    val summaryUiModel = SummaryUiModel(
+        summaryText = this.onSummarise,
+        ogText = this.toSummarise,
+        articleId = this.articleId
+    )
+    return ArticleWithSummaryUiModel(
+        articleUiModel = articleUiModel,
+        summaryUiModel = listOf(summaryUiModel)
+    )
+}

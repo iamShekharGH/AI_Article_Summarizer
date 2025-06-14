@@ -1,14 +1,18 @@
 package com.shekharhandigol.aiarticlesummarizer.ui.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,10 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shekharhandigol.aiarticlesummarizer.R
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
@@ -30,7 +36,8 @@ import com.shekharhandigol.aiarticlesummarizer.util.toDisplayString
 
 @Composable
 fun MainSettingsScreen(
-    openThemesChooser: () -> Unit
+    openThemesChooser: () -> Unit,
+    openSigninWithGoogle: () -> Unit
 ) {
 
     val viewModel: SettingsScreenViewModel = hiltViewModel()
@@ -55,7 +62,8 @@ fun MainSettingsScreen(
         onGeminiModelChange = { geminiModel ->
             viewModel.setGeminiModel(geminiModel)
         },
-        openThemesChooser = openThemesChooser
+        openThemesChooser = openThemesChooser,
+        openLoginPage = openSigninWithGoogle
     )
 }
 
@@ -66,7 +74,8 @@ fun SettingsScreen(
     themeName: State<AppThemeOption>,
     setSummaryLength: (SummaryType) -> Unit,
     onGeminiModelChange: (GeminiModelName) -> Unit,
-    openThemesChooser: () -> Unit
+    openThemesChooser: () -> Unit,
+    openLoginPage: () -> Unit
 ) {
     var summaryMenuExpanded by remember { mutableStateOf(false) }
     var geminiMenuExpanded by remember { mutableStateOf(false) }
@@ -156,6 +165,21 @@ fun SettingsScreen(
                 )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
+
+            OutlinedButton(
+                onClick = {
+                    openLoginPage()
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.google_fancy_image),
+                    contentDescription = "Sign in with Google",
+                    modifier = Modifier.size(24.dp)
+                )
+                Text("Sign in with Google", modifier = Modifier.padding(start = 8.dp))
+            }
+
         }
     }
 }
@@ -173,6 +197,7 @@ fun PreviewSettingsScreen() {
         themeName = themeName,
         setSummaryLength = {},
         onGeminiModelChange = {},
-        openThemesChooser = {}
+        openThemesChooser = {},
+        openLoginPage = {}
     )
 }

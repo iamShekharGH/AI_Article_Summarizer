@@ -128,6 +128,18 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
     }
 }
 
+//const val TAG_GENERATION_PROMPT = "Generate 3-5 relevant and generic tags for the following article, with each tag being one or two words max, similar to how you would tag an article about a new car model (e.g., 'car', 'automotive', 'v8 engine', 'bmw'). The article content is:"
+const val TAG_GENERATION_PROMPT = """
+Generate 3-5 relevant and generic tags for the following article.
+Each tag must be one or two words maximum.
+
+**Output Rules:**
+- If you can generate relevant tags, your entire response must be ONLY a comma-separated list (e.g., car,automotive,v8 engine,bmw).
+- If you cannot generate relevant tags that fit the criteria, your entire response must be completely empty.
+- Do not add any explanation, preamble, or apologies.
+
+The article content is:
+"""
 
 enum class SummaryType(val displayName: String, val prompt: String) {
     // Length-based summaries

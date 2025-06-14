@@ -6,9 +6,13 @@ firebaseBom = "33.15.0"
 gson = "2.11.0"
 hiltAndroid = "2.56.2"
 jsoup = "1.20.1"
+junitJupiterEngine = "5.11.1"
 kotlin = "2.0.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
+mockk = "1.13.10"
+truth = "1.4.2"
+kotlinxCoroutinesTest = "1.10.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.1"
@@ -29,6 +33,7 @@ googleFirebaseCrashlytics = "3.0.4"
 firebaseAuth = "23.2.1"
 credentials = "1.5.0"
 googleid = "1.1.1"
+junitJupiter = "5.11.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +52,11 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterEngine" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
@@ -71,6 +81,7 @@ googleid = { group = "com.google.android.libraries.identity.googleid", name = "g
 play-services-drive = { module = "com.google.android.gms:play-services-drive", version.ref = "playServicesDrive" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
