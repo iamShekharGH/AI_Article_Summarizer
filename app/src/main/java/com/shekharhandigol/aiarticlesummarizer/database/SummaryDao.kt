@@ -14,4 +14,6 @@ interface SummaryDao {
     @Insert
     suspend fun insertSummary(summary: Summary): Long
 
+    @Insert
+    suspend fun insertSummaries(summaries: List<Summary>): List<Long>
 }

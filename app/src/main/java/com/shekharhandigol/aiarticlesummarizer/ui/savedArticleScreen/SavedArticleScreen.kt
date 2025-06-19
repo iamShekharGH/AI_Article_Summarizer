@@ -4,6 +4,7 @@ package com.shekharhandigol.aiarticlesummarizer.ui.savedArticleScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,8 +15,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.shekharhandigol.aiarticlesummarizer.database.Article
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.ArticleListItem
+import com.shekharhandigol.aiarticlesummarizer.ui.articlesHome.dummyArticles
 import com.shekharhandigol.aiarticlesummarizer.ui.common.ErrorUi
 import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
 
@@ -45,7 +47,7 @@ fun MainFavouriteArticlesScreen(
             FavouriteArticlesScreen(
                 articles = state.articles,
                 onArticleClick = onArticleClick,
-                deleteArticleById = { viewModel.deleteArticleById(it) }
+                deleteArticleById = { viewModel.deleteArticleById(it.articleId) }
             )
         }
     }
@@ -55,9 +57,9 @@ fun MainFavouriteArticlesScreen(
 
 @Composable
 fun FavouriteArticlesScreen(
-    articles: List<Article> = emptyList(),
+    articles: List<ArticleUiModel> = emptyList(),
     onArticleClick: (Int) -> Unit = {},
-    deleteArticleById: (Article) -> Unit
+    deleteArticleById: (ArticleUiModel) -> Unit
 ) {
 
     Surface(
@@ -70,7 +72,8 @@ fun FavouriteArticlesScreen(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxSize(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
             )
         } else {
             LazyColumn(modifier = Modifier.padding(8.dp)) {
@@ -90,24 +93,6 @@ fun FavouriteArticlesScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewSavedArticlesScreenWithData() {
-    val dummyArticles = listOf(
-        Article(
-            articleId = 1,
-            title = "Dummy Article 1",
-            articleUrl = "http://example.com/article1"
-        ),
-        Article(
-            articleId = 2,
-            title = "Another Dummy Article",
-            articleUrl = "http://example.com/article2"
-        ),
-        Article(
-            articleId = 3,
-            title = "Third Example Article",
-            articleUrl = "http://example.com/article3"
-        )
-
-    )
     FavouriteArticlesScreen(
         articles = dummyArticles,
         onArticleClick = {},
