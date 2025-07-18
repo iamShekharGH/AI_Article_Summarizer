@@ -2,11 +2,16 @@ package com.shekharhandigol.aiarticlesummarizer.ui.homeScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
-import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiSummariserResult
-import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
+import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.data.mappers.toArticleWithSummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.domain.ArticleWithSummariesUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SaveArticleToDbUseCase
+import com.shekharhandigol.aiarticlesummarizer.domain.SummarizeArticleUseCase
+import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.ArticleInputScreenUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +19,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val aiArticleSummarizerRepository: AiArticleSummarizerRepository
+    private val articleWithSummariesUseCase: ArticleWithSummariesUseCase,
+    private val summarizeArticleUseCase: SummarizeArticleUseCase,
+    private val saveArticleToDbUseCase: SaveArticleToDbUseCase
 ) : ViewModel() {
 
     private val _articleWithSummaries =
@@ -24,10 +31,12 @@ class HomeScreenViewModel @Inject constructor(
 
     fun getArticleWithSummaries(articleId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.getArticleWithSummaries(articleId).collect { result ->
+            articleWithSummariesUseCase(articleId).collect { result ->
                 when (result) {
                     is AiSummariserResult.Error -> {
                         _articleWithSummaries.value = HomeScreenUiStates.Error
+                        delay(2000)
+                        resetState()
                     }
 
                     AiSummariserResult.Loading -> {
@@ -43,17 +52,60 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
+
+    fun summarizeText(url: String) {
+        viewModelScope.launch {
+            summarizeArticleUseCase(url = url).collect { result ->
+                when (result) {
+                    is AiSummariserResult.Error -> {
+                        _articleWithSummaries.value = HomeScreenUiStates.Error
+                    }
+
+                    AiSummariserResult.Loading -> {
+                        _articleWithSummaries.value = HomeScreenUiStates.Loading
+                    }
+
+                    is AiSummariserResult.Success -> {
+                        _articleWithSummaries.value =
+                            HomeScreenUiStates.ShowLavarisArticle(result.data.toArticleWithSummaryUiModel())
+                    }
+                }
+            }
+        }
+    }
+
+    fun saveArticleToDb(articleWithSummaryUiModel: ArticleWithSummaryUiModel) {
+        viewModelScope.launch {
+            saveArticleToDbUseCase(articleWithSummaryUiModel)
+                .collect { result ->
+                    when (result) {
+                        is AiSummariserResult.Error -> {
+                            ArticleInputScreenUIState.Error(
+                                result.exception.message ?: "Unknown error"
+                            )
+                        }
+
+                        AiSummariserResult.Loading -> {
+                            ArticleInputScreenUIState.Loading
+
+                        }
+
+                        is AiSummariserResult.Success -> {
+                            ArticleInputScreenUIState.SavedToDbSuccessfully(result.data)
+                            _articleWithSummaries.value = HomeScreenUiStates.Success(
+                                articleWithSummaryUiModel
+                            )
+                        }
+                    }
+                }
+        }
+    }
+
     fun resetState() {
         _articleWithSummaries.value = HomeScreenUiStates.Idle
     }
 
-    fun addToFavorites(articleId: Int, currentFavouriteState: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            aiArticleSummarizerRepository.favouriteThisArticle(articleId, currentFavouriteState)
-        }
-    }
-
-    fun showJustSummarizedText(articleWithSummaries: ArticleWithSummaries) {
+    fun showJustSummarizedText(articleWithSummaries: ArticleWithSummaryUiModel) {
         _articleWithSummaries.value = HomeScreenUiStates.ShowLavarisArticle(articleWithSummaries)
     }
 }
@@ -62,8 +114,10 @@ sealed interface HomeScreenUiStates {
     data object Loading : HomeScreenUiStates
     data object Idle : HomeScreenUiStates
     data object Error : HomeScreenUiStates
-    data class Success(val articleWithSummaries: ArticleWithSummaries) : HomeScreenUiStates
-    data class ShowLavarisArticle(val articleWithSummaries: ArticleWithSummaries) :
+    data class Success(val articleWithSummaryUiModel: ArticleWithSummaryUiModel) :
+        HomeScreenUiStates
+
+    data class ShowLavarisArticle(val articleWithSummaries: ArticleWithSummaryUiModel) :
         HomeScreenUiStates
 
 }
