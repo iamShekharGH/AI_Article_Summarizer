@@ -36,7 +36,9 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
     val homeScreenUiStates by viewModel.articleWithSummaries.collectAsStateWithLifecycle()
 
     if (url is SharedUrl.Url) {
-        viewModel.summarizeText(url.url)
+        LaunchedEffect(url.url) {
+            viewModel.summarizeText(url.url)
+        }
     }
 
     Scaffold(

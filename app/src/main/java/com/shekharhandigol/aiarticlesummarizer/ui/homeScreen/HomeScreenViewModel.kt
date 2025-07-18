@@ -11,6 +11,7 @@ import com.shekharhandigol.aiarticlesummarizer.domain.SummarizeArticleUseCase
 import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.ArticleInputScreenUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -34,6 +35,8 @@ class HomeScreenViewModel @Inject constructor(
                 when (result) {
                     is AiSummariserResult.Error -> {
                         _articleWithSummaries.value = HomeScreenUiStates.Error
+                        delay(2000)
+                        resetState()
                     }
 
                     AiSummariserResult.Loading -> {

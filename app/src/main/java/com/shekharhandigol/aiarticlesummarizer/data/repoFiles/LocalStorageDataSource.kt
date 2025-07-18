@@ -86,6 +86,7 @@ class LocalStorageDataSource @Inject constructor(
                 }
                 emit(AiSummariserResult.Success(articleWithSummary.toArticleWithSummaryUiModel()))
             } catch (e: Exception) {
+                e.printStackTrace()
                 emit(AiSummariserResult.Error(e))
             }
         }.onStart { emit(AiSummariserResult.Loading) }

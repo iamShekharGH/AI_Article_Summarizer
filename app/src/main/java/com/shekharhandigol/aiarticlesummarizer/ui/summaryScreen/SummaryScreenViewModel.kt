@@ -51,17 +51,13 @@ class SummaryScreenViewModel @Inject constructor(
 
     fun showArticleSummary(input: ArticleWithSummaryUiModel) {
         viewModelScope.launch {
+            _uiState.value = ArticleSummaryState.Success(input)
             val summary = input.summaryUiModel.first()
             if (input.articleUiModel.tags.isEmpty()) {
                 generateTagsFromTextTagUseCase(summary.summaryText).collect {
-                    _uiState.value = ArticleSummaryState.Success(
-                        input.copy(
-                            articleUiModel = input.articleUiModel.copy(tags = it)
-                        )
-                    )
+                    saveArticleToDb(input.copy(articleUiModel = input.articleUiModel.copy(tags = it)))
                 }
             }
-
         }
     }
 
