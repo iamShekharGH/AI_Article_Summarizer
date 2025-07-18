@@ -7,10 +7,10 @@ import androidx.core.graphics.createBitmap
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponse
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
+import com.shekharhandigol.aiarticlesummarizer.core.TAG_GENERATION_PROMPT
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
 import com.shekharhandigol.aiarticlesummarizer.data.mappers.toUiModel
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
-import com.shekharhandigol.aiarticlesummarizer.util.TAG_GENERATION_PROMPT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -46,10 +46,10 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
 
     fun summarizeArticle(
         url: String,
-        summaryLength: SummaryType? = null
+        summaryType: SummaryType? = null
     ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> = flow {
 
-        val promptSettings = summaryLength ?: settingsDataSource.getPromptSettings().firstOrNull()
+        val promptSettings = summaryType ?: settingsDataSource.getPromptSettings().firstOrNull()
         ?: SummaryType.MEDIUM_SUMMARY
 
         val prompt = promptSettings.prompt
@@ -68,8 +68,8 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
                     articleSummary.copy(
                         onSummarise = summary,
                         articleUrl = url,
-                        typeOfSummary = promptSettings.displayName,
-                        tags = tags
+                        tags = tags,
+                        summaryType = promptSettings
                     ).toUiModel()
                 )
             )

@@ -8,8 +8,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
 import com.shekharhandigol.aiarticlesummarizer.BuildConfig
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.data.datastore.DatastoreDao
-import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton

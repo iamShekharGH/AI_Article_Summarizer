@@ -2,6 +2,8 @@ package com.shekharhandigol.aiarticlesummarizer.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.domain.GetGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetPromptSettingsUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetThemeNameUseCase
@@ -9,8 +11,6 @@ import com.shekharhandigol.aiarticlesummarizer.domain.SaveGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SavePromptSettingsUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveThemeNameUseCase
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
-import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,9 +38,9 @@ class SettingsScreenViewModel @Inject constructor(
     val themeName = _themeName.asStateFlow()
 
 
-    fun saveSummariesPromptSettings(summaryLength: SummaryType) {
+    fun saveSummariesPromptSettings(summaryType: SummaryType) {
         viewModelScope.launch(Dispatchers.IO) {
-            savePromptSettingsUseCase(summaryLength)
+            savePromptSettingsUseCase(summaryType)
         }
     }
 
