@@ -35,7 +35,6 @@ class GetAllArticlesUseCaseTest {
                 favouriteArticles = false,
                 date = System.currentTimeMillis(),
                 tags = emptyList(),
-                typeOfSummary = "Test Source",
                 imageUrl = "https://images.pexels.com/photos/1925536/pexels-photo-1925536.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
             ),
             ArticleUiModel(
@@ -45,7 +44,6 @@ class GetAllArticlesUseCaseTest {
                 favouriteArticles = false,
                 date = System.currentTimeMillis(),
                 tags = emptyList(),
-                typeOfSummary = "Test Source",
                 imageUrl = "https://images.pexels.com/photos/1925536/pexels-photo-1925536.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
             )
 

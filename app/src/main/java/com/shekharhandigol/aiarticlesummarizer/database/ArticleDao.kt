@@ -43,7 +43,8 @@ interface ArticleDao {
                 summaryId = summary.summaryId, // Keep original summaryId if needed for updates, or 0 for new
                 articleId = articleIdInt,
                 summaryText = summary.summaryText,
-                ogText = summary.ogText
+                ogText = summary.ogText,
+                summaryType = summary.summaryType
             )
         }
         if (summariesWithArticleId.isNotEmpty()) {

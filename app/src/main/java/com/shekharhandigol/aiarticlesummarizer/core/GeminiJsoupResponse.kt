@@ -6,11 +6,11 @@ data class GeminiJsoupResponse(
     val onSummarise: String,
     val imageUrl: String = "",
     val favouriteArticles: Boolean = false,
-    val typeOfSummary: String = "",
     val articleUrl: String = "",
     val articleId: Int = -1,
     val summaryId: Int = -1,
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val summaryType: SummaryType = SummaryType.MEDIUM_SUMMARY
 )
 
 data class GeminiJsoupResponseUiModel(
@@ -19,9 +19,9 @@ data class GeminiJsoupResponseUiModel(
     val onSummarise: String,
     val imageUrl: String = "",
     val favouriteArticles: Boolean = false,
-    val typeOfSummary: String = "",
     val articleUrl: String = "",
     val articleId: Int = -1,
     val summaryId: Int = -1,
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val summaryType: SummaryType
 )

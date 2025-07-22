@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.core.SummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
 import io.mockk.coEvery
@@ -55,19 +56,20 @@ class ArticleWithSummariesUseCaseTest {
             favouriteArticles = false,
             date = currentTime,
             tags = emptyList(),
-            typeOfSummary = "Test Source",
-            imageUrl = "https://images.pexels.com/photos/1925536/pexels-photo-1925536.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            imageUrl = "https://images.pexels.com/photos/1925536/pexels-photo-1925536.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         )
         val mockSummaryUiModelList = listOf(
             SummaryUiModel(
                 articleId = articleId,
                 summaryText = "Summary 1",
-                ogText = "Original Text 1"
+                ogText = "Original Text 1",
+                summaryType = SummaryType.MEDIUM_SUMMARY
             ),
             SummaryUiModel(
                 articleId = articleId,
                 summaryText = "Summary 2",
-                ogText = "Original Text 2"
+                ogText = "Original Text 2",
+                summaryType = SummaryType.LARGE_SUMMARY
             )
         )
 

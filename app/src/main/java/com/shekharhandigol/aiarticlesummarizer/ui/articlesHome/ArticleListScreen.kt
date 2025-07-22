@@ -206,7 +206,6 @@ val dummyArticles = listOf(
         articleUrl = "https://example.com/ai",
         favouriteArticles = true,
         tags = listOf("AI", "Technology", "Future"),
-        typeOfSummary = "Key Points",
         imageUrl = "https://example.com/ai_image.jpg"
     ),
     ArticleUiModel(
@@ -214,7 +213,6 @@ val dummyArticles = listOf(
         title = "Quantum Computing Explained",
         articleUrl = "https://example.com/quantum",
         tags = listOf("Quantum Computing", "Physics", "Technology"),
-        typeOfSummary = "Detailed Summary",
         imageUrl = "https://example.com/quantum_image.jpg"
     ),
     ArticleUiModel(
@@ -230,7 +228,6 @@ val dummyArticles = listOf(
             "Lifestyle",
             "Environment"
         ),
-        typeOfSummary = "Key Points",
         imageUrl = "https://example.com/sustainable_image.jpg"
     )
 )

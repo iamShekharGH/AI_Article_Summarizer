@@ -18,7 +18,6 @@ fun DbArticle.toArticleUiModel(): ArticleUiModel {
         favouriteArticles = this.favouriteArticles,
         date = this.date,
         tags = this.tags, // Assuming direct mapping is fine
-        typeOfSummary = this.typeOfSummary,
         imageUrl = this.imageUrl
     )
 }
@@ -27,7 +26,8 @@ fun DbSummary.toSummaryUiModel(): SummaryUiModel {
     return SummaryUiModel(
         articleId = this.articleId,
         summaryText = this.summaryText,
-        ogText = this.ogText
+        ogText = this.ogText,
+        summaryType = this.summaryType
     )
 }
 
@@ -60,7 +60,6 @@ fun ArticleUiModel.toDbArticle(articleId: Int = 0): DbArticle {
         favouriteArticles = this.favouriteArticles,
         date = this.date,
         tags = this.tags,
-        typeOfSummary = this.typeOfSummary,
         imageUrl = this.imageUrl
     )
 }
@@ -70,7 +69,8 @@ fun SummaryUiModel.toDbSummary(articleId: Int, summaryId: Int = 0): DbSummary {
         summaryId = summaryId,
         articleId = articleId,
         summaryText = this.summaryText,
-        ogText = this.ogText
+        ogText = this.ogText,
+        summaryType = this.summaryType
     )
 }
 
@@ -81,11 +81,11 @@ fun GeminiJsoupResponse.toUiModel(): GeminiJsoupResponseUiModel = GeminiJsoupRes
     onSummarise = onSummarise,
     imageUrl = imageUrl,
     favouriteArticles = favouriteArticles,
-    typeOfSummary = typeOfSummary,
     articleUrl = articleUrl,
     articleId = articleId,
     summaryId = summaryId,
-    tags = tags
+    tags = tags,
+    summaryType = summaryType
 )
 
 fun GeminiJsoupResponseUiModel.toArticleWithSummaryUiModel(): ArticleWithSummaryUiModel {
@@ -94,14 +94,14 @@ fun GeminiJsoupResponseUiModel.toArticleWithSummaryUiModel(): ArticleWithSummary
         articleUrl = this.articleUrl,
         favouriteArticles = this.favouriteArticles,
         imageUrl = this.imageUrl,
-        typeOfSummary = this.typeOfSummary,
         articleId = this.articleId,
         tags = this.tags,
     )
     val summaryUiModel = SummaryUiModel(
         summaryText = this.onSummarise,
         ogText = this.toSummarise,
-        articleId = this.articleId
+        articleId = this.articleId,
+        summaryType = this.summaryType
     )
     return ArticleWithSummaryUiModel(
         articleUiModel = articleUiModel,

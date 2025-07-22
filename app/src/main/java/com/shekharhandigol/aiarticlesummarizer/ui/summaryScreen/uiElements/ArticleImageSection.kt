@@ -95,7 +95,6 @@ fun ArticleImageSectionPreview() {
             favouriteArticles = false,
             articleUrl = "https://example.com/article",
             tags = emptyList(),
-            typeOfSummary = "Key Points",
         ),
         saveArticle = { },
         toggleFavourite = { _, _ -> }
@@ -113,7 +112,6 @@ fun ArticleImageSectionShowItemsPreview() {
             favouriteArticles = false,
             articleUrl = "https://example.com/article",
             tags = emptyList(),
-            typeOfSummary = "Key Points",
         ),
         saveArticle = { },
         toggleFavourite = { _, _ -> }
