@@ -24,8 +24,8 @@ class GetArticlesByTagUseCase @Inject constructor(
     private val repository: AiArticleSummarizerRepository
 ) : UseCase<String, Flow<AiSummariserResult<List<ArticleUiModel>>>> {
 
-    override suspend fun invoke(tag: String): Flow<AiSummariserResult<List<ArticleUiModel>>> {
-        return repository.getArticlesByTag(tag)
+    override suspend fun invoke(input: String): Flow<AiSummariserResult<List<ArticleUiModel>>> {
+        return repository.getArticlesByTag(input)
     }
 }
 
