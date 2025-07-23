@@ -25,7 +25,6 @@ class HomeScreenViewModel @Inject constructor(
         _articleWithSummaries.value = HomeScreenUiStates.ArticleClicked(articleId)
     }
 
-
     fun summarizeText(url: String) {
         viewModelScope.launch {
             summarizeArticleUseCase(input = url).collect { result ->
@@ -62,7 +61,6 @@ sealed interface HomeScreenUiStates {
     data object Error : HomeScreenUiStates
     data class Success(val articleWithSummaryUiModel: ArticleWithSummaryUiModel) :
         HomeScreenUiStates
-
     data class ArticleClicked(val articleId: Int) : HomeScreenUiStates
     data class ShowLavarisArticle(val articleWithSummaries: ArticleWithSummaryUiModel) :
         HomeScreenUiStates
