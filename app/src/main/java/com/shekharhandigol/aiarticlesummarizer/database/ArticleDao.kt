@@ -9,7 +9,6 @@ import androidx.room.Relation
 import androidx.room.Transaction
 import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME
 import kotlinx.coroutines.flow.Flow
-import kotlin.collections.map
 
 @Dao
 interface ArticleDao {
@@ -61,7 +60,7 @@ interface ArticleDao {
 
     @Transaction
     @Query("SELECT * FROM $DATABASE_NAME WHERE articleId = :articleId")
-    suspend fun getArticleWithSummaries(articleId: Int): ArticleWithSummaries?
+    fun getArticleWithSummaries(articleId: Int): Flow<ArticleWithSummaries?>
 
 
     @Query("UPDATE $DATABASE_NAME SET favouriteArticles = 1 WHERE articleId = :articleId")

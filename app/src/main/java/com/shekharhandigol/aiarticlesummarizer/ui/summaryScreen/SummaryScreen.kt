@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,15 +19,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ShapeDefaults
@@ -34,6 +40,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,9 +59,11 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.ui.common.ErrorUi
 import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
 import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.uiElements.ArticleImageSection
+import com.shekharhandigol.aiarticlesummarizer.util.articleSummariesDummyData
 import com.shekharhandigol.aiarticlesummarizer.util.getDayOfMonthSuffix
 import com.shekharhandigol.aiarticlesummarizer.util.simpleMarkdownToAnnotatedString
 import java.text.SimpleDateFormat
@@ -64,7 +73,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainSummaryScreen(
-    articleWithSummaries: ArticleWithSummaryUiModel,
+    articlePassInformation: ArticlePassInformation,
     sheetState: SheetState = SheetState(
         skipPartiallyExpanded = true,
         initialValue = SheetValue.Expanded,
@@ -78,36 +87,51 @@ fun MainSummaryScreen(
 
     val viewModel: SummaryScreenViewModel = hiltViewModel()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
+    val reSummarizeState = viewModel.getNewSummary.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.showArticleSummary(articleWithSummaries)
-    }
+        when (articlePassInformation) {
+            is ArticlePassInformation.ArticleObject -> viewModel.showArticleSummary(
+                articlePassInformation.article
+            )
 
-    when (val stateValue = state.value) {
-        ArticleSummaryState.EmptyState -> {
-            LoadingUi()
-        }
-
-        is ArticleSummaryState.Error -> {
-            ErrorUi()
-        }
-
-        ArticleSummaryState.Loading -> {
-            LoadingUi()
-        }
-
-        is ArticleSummaryState.Success -> {
-            SummaryScreen(
-                articleWithSummaries = stateValue.data,
-                onDismiss = onDismiss,
-                addToFavorites = viewModel::favouriteThisArticle,
-                deleteArticle = viewModel::deleteArticle,
-                saveArticle = viewModel::saveArticleToDb,
-                sheetState = sheetState,
-                gotoWebView = openWebView
+            is ArticlePassInformation.ArticleId -> viewModel.getArticleWithSummaries(
+                articlePassInformation.articleId
             )
         }
     }
+
+    Box {
+        when (val stateValue = state.value) {
+            ArticleSummaryState.EmptyState -> {
+                LoadingUi()
+            }
+
+            is ArticleSummaryState.Error -> {
+                ErrorUi()
+            }
+
+            ArticleSummaryState.Loading -> {
+                LoadingUi()
+            }
+
+            is ArticleSummaryState.Success -> {
+                SummaryScreen(
+                    articleWithSummaries = stateValue.data,
+                    onDismiss = onDismiss,
+                    addToFavorites = viewModel::favouriteThisArticle,
+                    deleteArticle = viewModel::deleteArticle,
+                    saveArticle = viewModel::saveArticleToDb,
+                    sheetState = sheetState,
+                    gotoWebView = openWebView,
+                    reSummaryFunction = viewModel::summarizeText,
+                    reSummarizeState = reSummarizeState
+                )
+            }
+        }
+    }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,13 +143,18 @@ fun SummaryScreen(
     deleteArticle: (Int) -> Unit,
     saveArticle: (ArticleWithSummaryUiModel) -> Unit,
     sheetState: SheetState,
-    gotoWebView: (String) -> Unit
+    gotoWebView: (String) -> Unit,
+    reSummaryFunction: (SummaryType, String) -> Unit,
+    reSummarizeState: State<ReSummariseArticleUIState>
 ) {
 
     val summary = articleWithSummaries.summaryUiModel.first()
     val article = articleWithSummaries.articleUiModel
     val context = LocalContext.current
     val intent = Intent(Intent.ACTION_VIEW, article.articleUrl.toUri())
+    var expanded by remember { mutableStateOf(false) }
+    var selectedSummaryType by remember { mutableStateOf(summary.summaryType) }
+
 
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
@@ -229,22 +258,104 @@ fun SummaryScreen(
                     val summaryText = buildAnnotatedString {
                         append("Summary Type: ")
                         pushStyle(SpanStyle(color = MaterialTheme.colorScheme.tertiary))
-                        append(article.typeOfSummary)
+                        append(selectedSummaryType.displayName)
                         pop()
                     }
-                    Text(
-                        text = summaryText,
-                        style = MaterialTheme.typography.titleMedium,
+                    Row(
                         modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .padding(bottom = 8.dp)
-                            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-                            .padding(6.dp)
-                    )
-                    Text(
-                        text = simpleMarkdownToAnnotatedString(summary.summaryText),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                            .fillMaxWidth()
+                            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp)),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = summaryText,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp)
+                                .clickable { expanded = !expanded }
+                        )
+                        IconButton(
+                            onClick = { expanded = !expanded },
+                            modifier = Modifier
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    RoundedCornerShape(4.dp)
+                                )
+                        ) {
+                            Icon(
+                                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp
+                                else Icons.Filled.KeyboardArrowDown,
+                                contentDescription = if (expanded) "Collapse" else "Expand"
+                            )
+                        }
+                    }
+                    DropdownMenu(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface),
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        SummaryType.entries.forEach { type ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedSummaryType = type
+                                    expanded = false
+                                    reSummaryFunction(type, summary.ogText)
+
+                                },
+                                text = {
+                                    Text(
+                                        text = type.displayName,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                leadingIcon = {
+                                    if (selectedSummaryType == type) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = "Info"
+                                        )
+                                    }
+
+                                },
+                                contentPadding = PaddingValues(4.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box {
+                        when (val state = reSummarizeState.value) {
+                            ReSummariseArticleUIState.Initial -> {
+                                Text(
+                                    text = simpleMarkdownToAnnotatedString(summary.summaryText),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+
+                            ReSummariseArticleUIState.Loading -> {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            is ReSummariseArticleUIState.Error -> ErrorUi()
+                            is ReSummariseArticleUIState.Success -> {
+                                Text(
+                                    text = simpleMarkdownToAnnotatedString(state.summary),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+
+                    }
+
                 }
 
                 item {
@@ -322,10 +433,21 @@ fun SummaryScreen(
     }
 }
 
+
+sealed interface ArticlePassInformation {
+    data class ArticleObject(val article: ArticleWithSummaryUiModel) : ArticlePassInformation
+    data class ArticleId(val articleId: Int) : ArticlePassInformation
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun PreviewSummaryScreen() {
+
+    val dummyReSummarizeState =
+        remember { mutableStateOf<ReSummariseArticleUIState>(ReSummariseArticleUIState.Initial) }
+
+
     SummaryScreen(
         articleWithSummaries = articleSummariesDummyData,
         onDismiss = {},
@@ -340,5 +462,9 @@ fun PreviewSummaryScreen() {
             density = Density(1f),
         ),
         gotoWebView = {},
+        reSummaryFunction = { _, _ -> },
+        reSummarizeState = dummyReSummarizeState
     )
 }
+
+// Dummy data for preview

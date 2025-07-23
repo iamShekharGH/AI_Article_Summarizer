@@ -21,7 +21,9 @@ import androidx.navigation.NavHostController
 import com.shekharhandigol.aiarticlesummarizer.SharedUrl
 import com.shekharhandigol.aiarticlesummarizer.ui.common.ErrorUi
 import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
+import com.shekharhandigol.aiarticlesummarizer.ui.homeScreen.Destinations.*
 import com.shekharhandigol.aiarticlesummarizer.ui.homeScreen.navHost.HomeScreenNavHost
+import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.ArticlePassInformation.*
 import com.shekharhandigol.aiarticlesummarizer.ui.summaryScreen.MainSummaryScreen
 import kotlinx.coroutines.launch
 
@@ -54,7 +56,7 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
         Surface(modifier = Modifier.padding(paddingValues)) {
             HomeScreenNavHost(
                 navController = navController,
-                onArticleClick = viewModel::getArticleWithSummaries,
+                onArticleClick = viewModel::articleClicked,
                 showJustSummarizedText = viewModel::showJustSummarizedText
             )
         }
@@ -85,28 +87,39 @@ fun HomeScreen(navController: NavHostController, url: SharedUrl) {
 
             is HomeScreenUiStates.Success -> {
                 MainSummaryScreen(
-                    articleWithSummaries = state.articleWithSummaryUiModel,
-//                    sheetState = sheetState,
+                    articlePassInformation = ArticleId(state.articleWithSummaryUiModel.articleUiModel.articleId),
                     onDismiss = {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
                     openWebView = { url: String ->
-                        navController.navigate(Destinations.WebView(url))
+                        navController.navigate(WebView(url))
                     }
                 )
             }
 
             is HomeScreenUiStates.ShowLavarisArticle -> {
                 MainSummaryScreen(
-                    articleWithSummaries = state.articleWithSummaries,
-//                    sheetState = sheetState,
+                    articlePassInformation = ArticleObject(state.articleWithSummaries),
                     onDismiss = {
                         scope.launch { sheetState.hide() }
                         viewModel.resetState()
                     },
                     openWebView = { url: String ->
-                        navController.navigate(Destinations.WebView(url))
+                        navController.navigate(WebView(url))
+                    }
+                )
+            }
+
+            is HomeScreenUiStates.ArticleClicked -> {
+                MainSummaryScreen(
+                    articlePassInformation = ArticleId(state.articleId),
+                    onDismiss = {
+                        scope.launch { sheetState.hide() }
+                        viewModel.resetState()
+                    },
+                    openWebView = { url: String ->
+                        navController.navigate(WebView(url))
                     }
                 )
             }

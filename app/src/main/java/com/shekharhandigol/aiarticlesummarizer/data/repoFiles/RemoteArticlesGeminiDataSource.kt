@@ -84,13 +84,17 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
     fun summarizeArticleWithPrompt(
         prompt: String,
         text: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> = flow {
+    ): Flow<AiSummariserResult<String>> = flow {
 
-        val summary = geminiApiService.sendPrompt(text)
+        val summary = geminiApiService.sendPrompt("$prompt + \n + $text")
         if (summary.isNullOrEmpty()) {
             emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
         } else {
-            emit(AiSummariserResult.Success(Pair(prompt, summary)))
+            emit(
+                AiSummariserResult.Success(
+                    summary
+                )
+            )
         }
 
     }.onStart { emit(AiSummariserResult.Loading) }

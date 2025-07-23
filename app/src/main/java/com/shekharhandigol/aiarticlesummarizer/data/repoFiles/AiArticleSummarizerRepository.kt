@@ -6,9 +6,10 @@ import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
-import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +36,7 @@ class AiArticleSummarizerRepository @Inject constructor(
     fun summarizeArticleWithPrompt(
         prompt: String,
         text: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> =
+    ): Flow<AiSummariserResult<String>> =
         remoteArticlesGeminiDataSource.summarizeArticleWithPrompt(prompt = prompt, text = text)
 
     fun getAllArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
@@ -61,6 +62,11 @@ class AiArticleSummarizerRepository @Inject constructor(
         articleWithSummaryUiModel: ArticleWithSummaryUiModel
     ): Flow<AiSummariserResult<Long>> =
         localStorageDataSource.insertArticleWithSummary(articleWithSummaryUiModel)
+
+    fun insertSummary(
+        summaryUiModel: SummaryUiModel
+    ): Flow<AiSummariserResult<Long>> =
+        localStorageDataSource.insertSummary(summaryUiModel)
 
 
     fun searchArticles(query: String): Flow<AiSummariserResult<List<ArticleUiModel>>> =
