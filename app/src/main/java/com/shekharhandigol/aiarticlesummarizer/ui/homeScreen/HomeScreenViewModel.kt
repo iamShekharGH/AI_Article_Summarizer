@@ -5,13 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.data.mappers.toArticleWithSummaryUiModel
-import com.shekharhandigol.aiarticlesummarizer.domain.ArticleWithSummariesUseCase
-import com.shekharhandigol.aiarticlesummarizer.domain.SaveArticleToDbUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SummarizeArticleUseCase
-import com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen.ArticleInputScreenUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -19,43 +14,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val articleWithSummariesUseCase: ArticleWithSummariesUseCase,
-    private val summarizeArticleUseCase: SummarizeArticleUseCase,
-    private val saveArticleToDbUseCase: SaveArticleToDbUseCase
+    private val summarizeArticleUseCase: SummarizeArticleUseCase
 ) : ViewModel() {
 
     private val _articleWithSummaries =
         MutableStateFlow<HomeScreenUiStates>(HomeScreenUiStates.Idle)
     val articleWithSummaries = _articleWithSummaries.asStateFlow()
 
-
-    fun getArticleWithSummaries(articleId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            articleWithSummariesUseCase(articleId).collect { result ->
-                when (result) {
-                    is AiSummariserResult.Error -> {
-                        _articleWithSummaries.value = HomeScreenUiStates.Error
-                        delay(2000)
-                        resetState()
-                    }
-
-                    AiSummariserResult.Loading -> {
-                        _articleWithSummaries.value = HomeScreenUiStates.Loading
-                    }
-
-                    is AiSummariserResult.Success -> {
-                        _articleWithSummaries.value =
-                            HomeScreenUiStates.Success(result.data)
-                    }
-                }
-            }
-        }
+    fun articleClicked(articleId: Int) {
+        _articleWithSummaries.value = HomeScreenUiStates.ArticleClicked(articleId)
     }
 
 
     fun summarizeText(url: String) {
         viewModelScope.launch {
-            summarizeArticleUseCase(url = url).collect { result ->
+            summarizeArticleUseCase(input = url).collect { result ->
                 when (result) {
                     is AiSummariserResult.Error -> {
                         _articleWithSummaries.value = HomeScreenUiStates.Error
@@ -71,33 +44,6 @@ class HomeScreenViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    fun saveArticleToDb(articleWithSummaryUiModel: ArticleWithSummaryUiModel) {
-        viewModelScope.launch {
-            saveArticleToDbUseCase(articleWithSummaryUiModel)
-                .collect { result ->
-                    when (result) {
-                        is AiSummariserResult.Error -> {
-                            ArticleInputScreenUIState.Error(
-                                result.exception.message ?: "Unknown error"
-                            )
-                        }
-
-                        AiSummariserResult.Loading -> {
-                            ArticleInputScreenUIState.Loading
-
-                        }
-
-                        is AiSummariserResult.Success -> {
-                            ArticleInputScreenUIState.SavedToDbSuccessfully(result.data)
-                            _articleWithSummaries.value = HomeScreenUiStates.Success(
-                                articleWithSummaryUiModel
-                            )
-                        }
-                    }
-                }
         }
     }
 
@@ -117,7 +63,7 @@ sealed interface HomeScreenUiStates {
     data class Success(val articleWithSummaryUiModel: ArticleWithSummaryUiModel) :
         HomeScreenUiStates
 
+    data class ArticleClicked(val articleId: Int) : HomeScreenUiStates
     data class ShowLavarisArticle(val articleWithSummaries: ArticleWithSummaryUiModel) :
         HomeScreenUiStates
-
 }

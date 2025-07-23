@@ -20,14 +20,13 @@ class ArticleInputScreenViewModel @Inject constructor(
     private val saveArticleToDbUseCase: SaveArticleToDbUseCase
 ) : ViewModel() {
 
-
     private val _summaryText =
         MutableStateFlow<ArticleInputScreenUIState>(ArticleInputScreenUIState.Initial(text = "Your Results Status will show up here."))
     val summaryText = _summaryText.asStateFlow()
 
     fun summarizeText(url: String) {
         viewModelScope.launch {
-            summarizeArticleUseCase(url = url).collect { result ->
+            summarizeArticleUseCase(input = url).collect { result ->
 
                 when (result) {
                     is AiSummariserResult.Error -> {
