@@ -53,9 +53,8 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.shekharhandigol.aiarticlesummarizer.R
-import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
-import com.shekharhandigol.aiarticlesummarizer.core.SummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.util.articleSummariesDummyData
 import com.shekharhandigol.aiarticlesummarizer.util.getDayOfMonthSuffix
 import com.shekharhandigol.aiarticlesummarizer.util.simpleMarkdownToAnnotatedString
 import java.text.SimpleDateFormat
@@ -176,7 +175,7 @@ fun SummaryScreenOld(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = article.typeOfSummary,
+                        text = summary.summaryType.displayName,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .padding(bottom = 8.dp)
@@ -327,26 +326,3 @@ fun SummaryScreenPreview() {
         saveArticle = {}
     )
 }
-
-val articleSummariesDummyData = ArticleWithSummaryUiModel(
-    articleUiModel = ArticleUiModel(
-        title = "Kotlin’s Builder Functions: " +
-                "A Better Way to Create " +
-                "Lists, " +
-                "Maps, " +
-                "Strings & Sets",
-        articleUrl = "https://medium.com/@shekharhandigol/kotlins-builder-functions",
-        favouriteArticles = false,
-        tags = listOf("Kotlin", "Programming", "Android"),
-        typeOfSummary = "Detailed",
-        imageUrl = "https://miro.medium.com/v2/resize:fit:1400/1*1Z3Z3Z3Z3Z3Z3Z3Z3Z3Z3A.png"
-    ),
-    summaryUiModel = listOf(
-        SummaryUiModel(
-            articleId = 777,
-            summaryText = "Kotlin's builder functions simplify the creation of common data structures. buildList {} creates immutable lists from mutable operations within a lambda, with primitive-optimized versions like buildIntList {}. buildString {} offers a concise way to build strings using a StringBuilder in a lambda. buildSet {} constructs immutable sets, with type-specific options like buildIntSet {} (note: order is not guaranteed). buildMap {} facilitates immutable map creation, including specialized versions like buildIntIntMap {} for primitives. These standard library features reduce boilerplate and enhance code readability for object construction. Other libraries also provide similar builder utilities.",
-            ogText = "This is the original text of the article. It's much longer and more detailed than the summary. It goes into depth about Kotlin's builder functions, providing code examples and explanations for each type: buildList, buildString, buildSet, and buildMap. The article also discusses the benefits of using these functions, such as improved code readability and reduced boilerplate. It might also touch upon performance considerations and compare these builders to traditional ways of creating collections or strings.",
-
-        )
-    )
-)

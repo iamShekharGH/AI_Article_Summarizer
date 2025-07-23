@@ -14,12 +14,12 @@ data class ArticleUiModel(
     val date: Long = System.currentTimeMillis(),
 
     val tags: List<String> = emptyList(),
-    val typeOfSummary: String,
     val imageUrl: String = "https://images.pexels.com/photos/1925536/pexels-photo-1925536.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
 )
 
 data class SummaryUiModel(
     val articleId: Int,
     val summaryText: String,
-    val ogText: String
+    val ogText: String,
+    val summaryType: SummaryType
 )

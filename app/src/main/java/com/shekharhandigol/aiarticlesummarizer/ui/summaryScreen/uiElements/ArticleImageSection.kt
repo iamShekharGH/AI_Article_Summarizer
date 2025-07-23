@@ -34,8 +34,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 fun ArticleImageSection(
     article: ArticleUiModel,
     saveArticle: () -> Unit,
-    toggleFavourite: (Int, Boolean) -> Unit,
-    showFavoriteButton: Boolean
+    toggleFavourite: (Int, Boolean) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -70,7 +69,7 @@ fun ArticleImageSection(
             ) {
                 Text(text = "Save Article")
             }
-        if (showFavoriteButton)
+        else
             IconButton(
                 onClick = { toggleFavourite(article.articleId, !article.favouriteArticles) },
                 modifier = Modifier.align(Alignment.TopEnd)
@@ -96,11 +95,9 @@ fun ArticleImageSectionPreview() {
             favouriteArticles = false,
             articleUrl = "https://example.com/article",
             tags = emptyList(),
-            typeOfSummary = "Key Points",
         ),
         saveArticle = { },
-        toggleFavourite = { _, _ -> },
-        showFavoriteButton = false
+        toggleFavourite = { _, _ -> }
     )
 }
 
@@ -115,10 +112,8 @@ fun ArticleImageSectionShowItemsPreview() {
             favouriteArticles = false,
             articleUrl = "https://example.com/article",
             tags = emptyList(),
-            typeOfSummary = "Key Points",
         ),
         saveArticle = { },
-        toggleFavourite = { _, _ -> },
-        showFavoriteButton = true
+        toggleFavourite = { _, _ -> }
     )
 }

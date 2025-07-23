@@ -21,8 +21,8 @@ android {
         applicationId = "com.shekharhandigol.aiarticlesummarizer"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,7 +62,7 @@ dependencies {
 
     implementation(libs.firebase.crashlytics)
     implementation(platform(libs.firebase.bom))
-    implementation(libs.google.firebase.auth)
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.ai)
     //https://firebase.google.com/docs/ai-logic/get-started?platform=web&authuser=0&_gl=1*146x79*_ga*MTM5NTY2MjAyNS4xNzQ4ODI4Mzc1*_ga_CW55HF8NVT*czE3NDg4NDQzMDQkbzIkZzEkdDE3NDg4NDQ0NDckajQ0JGwwJGgw&api=dev#add-sdk
 
@@ -81,8 +81,7 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.ui.text.google.fonts)
-    implementation(libs.firebase.auth)
-    implementation(libs.googleid)
+
 
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.room.compiler)
@@ -104,7 +103,14 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation(libs.generativeai)
+
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

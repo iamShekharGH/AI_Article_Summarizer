@@ -3,10 +3,9 @@ package com.shekharhandigol.aiarticlesummarizer.ui.articleInputScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
-import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
-import com.shekharhandigol.aiarticlesummarizer.core.SummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.data.mappers.toArticleWithSummaryUiModel
 import com.shekharhandigol.aiarticlesummarizer.domain.SaveArticleToDbUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.SummarizeArticleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,14 +20,13 @@ class ArticleInputScreenViewModel @Inject constructor(
     private val saveArticleToDbUseCase: SaveArticleToDbUseCase
 ) : ViewModel() {
 
-
     private val _summaryText =
         MutableStateFlow<ArticleInputScreenUIState>(ArticleInputScreenUIState.Initial(text = "Your Results Status will show up here."))
     val summaryText = _summaryText.asStateFlow()
 
-    fun summarizeText(text: String) {
+    fun summarizeText(url: String) {
         viewModelScope.launch {
-            summarizeArticleUseCase(url = text).collect { result ->
+            summarizeArticleUseCase(input = url).collect { result ->
 
                 when (result) {
                     is AiSummariserResult.Error -> {
@@ -51,31 +49,6 @@ class ArticleInputScreenViewModel @Inject constructor(
             }
         }
     }
-
-    /*fun summarizeArticleWithPrompt(prompt: String, text: String) {
-        viewModelScope.launch {
-            repository.summarizeArticleWithPrompt(prompt = prompt, text = text).collect { result ->
-                when (result) {
-                    is AiSummariserResult.Error -> {
-                        _summaryText.value = ArticleInputScreenUIState.Error(
-                            result.exception.message ?: "Unknown error"
-                        )
-                    }
-
-                    AiSummariserResult.Loading -> {
-                        _summaryText.value = ArticleInputScreenUIState.Loading
-                    }
-
-                    is AiSummariserResult.Success -> {
-                        _summaryText.value =
-                            ArticleInputScreenUIState.UrlSummarisedSuccessfully(
-                                result.data
-                            )
-                    }
-                }
-            }
-        }
-    }*/
 
     fun saveArticleToDb(articleWithSummaryUiModel: ArticleWithSummaryUiModel) {
         viewModelScope.launch {
@@ -104,26 +77,10 @@ class ArticleInputScreenViewModel @Inject constructor(
 
     fun getArticleWithSummaryObj(): ArticleWithSummaryUiModel? {
         val screenStateValue = summaryText.value
-        if (screenStateValue is ArticleInputScreenUIState.UrlSummarisedSuccessfully) {
-            val data = screenStateValue.geminiJsoupResponseUiModel
-            val articleUiModel = ArticleUiModel(
-                title = data.title,
-                articleUrl = data.articleUrl,
-                favouriteArticles = data.favouriteArticles,
-                imageUrl = data.imageUrl,
-                typeOfSummary = data.typeOfSummary,
-            )
-            val summaryUiModel = SummaryUiModel(
-                summaryText = data.onSummarise,
-                ogText = data.toSummarise,
-                articleId = data.articleId,
-            )
-            return ArticleWithSummaryUiModel(
-                articleUiModel = articleUiModel,
-                summaryUiModel = listOf(summaryUiModel)
-            )
+        return if (screenStateValue is ArticleInputScreenUIState.UrlSummarisedSuccessfully) {
+            screenStateValue.geminiJsoupResponseUiModel.toArticleWithSummaryUiModel()
         } else {
-            return null
+            null
         }
 
     }
@@ -132,6 +89,8 @@ class ArticleInputScreenViewModel @Inject constructor(
         _summaryText.value =
             ArticleInputScreenUIState.Initial(text = "Your Results Status will show up here.")
     }
+
+
 }
 
 sealed class ArticleInputScreenUIState {

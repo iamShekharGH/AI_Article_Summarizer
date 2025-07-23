@@ -1,9 +1,9 @@
 package com.shekharhandigol.aiarticlesummarizer.domain
 
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.AiArticleSummarizerRepository
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
-import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

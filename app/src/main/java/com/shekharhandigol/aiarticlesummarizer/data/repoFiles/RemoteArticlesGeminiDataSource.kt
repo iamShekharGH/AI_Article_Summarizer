@@ -7,9 +7,10 @@ import androidx.core.graphics.createBitmap
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponse
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
+import com.shekharhandigol.aiarticlesummarizer.core.TAG_GENERATION_PROMPT
 import com.shekharhandigol.aiarticlesummarizer.data.GeminiApiService
 import com.shekharhandigol.aiarticlesummarizer.data.mappers.toUiModel
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -45,10 +46,10 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
 
     fun summarizeArticle(
         url: String,
-        summaryLength: SummaryType? = null
+        summaryType: SummaryType? = null
     ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> = flow {
 
-        val promptSettings = summaryLength ?: settingsDataSource.getPromptSettings().firstOrNull()
+        val promptSettings = summaryType ?: settingsDataSource.getPromptSettings().firstOrNull()
         ?: SummaryType.MEDIUM_SUMMARY
 
         val prompt = promptSettings.prompt
@@ -56,6 +57,9 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
         val text = prompt + "\n" + articleSummary.toSummarise
 
         val summary = geminiApiService.sendPrompt(text)
+        val tags = generateTags(articleSummary.toSummarise)
+
+
         if (summary.isNullOrEmpty()) {
             emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
         } else {
@@ -64,7 +68,8 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
                     articleSummary.copy(
                         onSummarise = summary,
                         articleUrl = url,
-                        typeOfSummary = promptSettings.displayName,
+                        tags = tags,
+                        summaryType = promptSettings
                     ).toUiModel()
                 )
             )
@@ -79,13 +84,17 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
     fun summarizeArticleWithPrompt(
         prompt: String,
         text: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> = flow {
+    ): Flow<AiSummariserResult<String>> = flow {
 
-        val summary = geminiApiService.sendPrompt(text)
+        val summary = geminiApiService.sendPrompt("$prompt + \n + $text")
         if (summary.isNullOrEmpty()) {
             emit(AiSummariserResult.Error(Exception("Could not generate summary.")))
         } else {
-            emit(AiSummariserResult.Success(Pair(prompt, summary)))
+            emit(
+                AiSummariserResult.Success(
+                    summary
+                )
+            )
         }
 
     }.onStart { emit(AiSummariserResult.Loading) }
@@ -93,6 +102,24 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             e.printStackTrace()
             emit(AiSummariserResult.Error(e))
         }
+
+    suspend fun generateTags(articleText: String): List<String> {
+        val tagsPrompt = "$TAG_GENERATION_PROMPT\n$articleText"
+        val rawTags = geminiApiService.sendPrompt(tagsPrompt)
+
+        return if (rawTags == null ||
+            rawTags.contains("Please provide the article content.", ignoreCase = true)
+        ) {
+            Log.w("TagsGeneration", "Error in generating tags or invalid format: $rawTags")
+            emptyList()
+        } else {
+            rawTags.replace("*", "")
+                .split(",")
+                .flatMap { it.split("\n") }
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+        }
+    }
 
     private suspend fun returnTextToSummarize(url: String): GeminiJsoupResponse {
         return withContext(Dispatchers.IO) {
@@ -140,4 +167,5 @@ class RemoteArticlesGeminiDataSource @Inject constructor(
             }
         }
     }
+
 }
