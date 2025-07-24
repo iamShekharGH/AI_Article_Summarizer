@@ -21,7 +21,10 @@ object DatabaseModule {
             appContext,
             AppDatabase::class.java,
             DATABASE_NAME
-        ).fallbackToDestructiveMigration(false).build()
+        ).addMigrations(MIGRATION_2_3)
+            .addMigrations(MIGRATION_3_4)
+//            .fallbackToDestructiveMigration(false)
+            .build()
     }
 
     @Provides

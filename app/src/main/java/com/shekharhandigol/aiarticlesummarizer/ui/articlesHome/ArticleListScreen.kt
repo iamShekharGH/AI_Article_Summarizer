@@ -1,5 +1,6 @@
 package com.shekharhandigol.aiarticlesummarizer.ui.articlesHome
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -16,21 +18,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.shekharhandigol.aiarticlesummarizer.database.Article
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
 import com.shekharhandigol.aiarticlesummarizer.ui.common.ErrorUi
 import com.shekharhandigol.aiarticlesummarizer.ui.common.LoadingUi
 import com.shekharhandigol.aiarticlesummarizer.util.getDayOfMonthSuffix
@@ -63,7 +64,7 @@ fun MainArticleListScreen(
             ArticleListScreen(
                 articles = state.articles,
                 onArticleClick = onArticleClick,
-                onDeleteClick = { viewModel.deleteArticleById(it) }
+                onDeleteClick = { viewModel.deleteArticleById(it.articleId) }
             )
         }
     }
@@ -72,9 +73,9 @@ fun MainArticleListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArticleListScreen(
-    articles: List<Article>,
+    articles: List<ArticleUiModel>,
     onArticleClick: (Int) -> Unit = {},
-    onDeleteClick: (Article) -> Unit = {}
+    onDeleteClick: (ArticleUiModel) -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
@@ -83,7 +84,8 @@ fun ArticleListScreen(
         if (articles.isEmpty()) {
             Text(
                 text = "No articles summarized yet.",
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyLarge
             )
         } else {
             LazyColumn(modifier = Modifier.padding(8.dp)) {
@@ -102,9 +104,9 @@ fun ArticleListScreen(
 
 @Composable
 fun ArticleListItem(
-    article: Article,
+    article: ArticleUiModel,
     onArticleClick: (Int) -> Unit,
-    onDeleteClick: (Article) -> Unit
+    onDeleteClick: (ArticleUiModel) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -129,7 +131,7 @@ fun ArticleListItem(
                         .weight(1f)
                         .padding(end = 8.dp), // Added weight and padding
                     text = article.title,
-                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -143,16 +145,43 @@ fun ArticleListItem(
                 }
 
             }
+            TagsRow(tags = article.tags)
 
             Spacer(modifier = Modifier.height(8.dp))
             val formattedDate = SimpleDateFormat(
                 "d'${getDayOfMonthSuffix(article.date)}' MMMM yyyy",
                 Locale.getDefault()
             ).format(Date(article.date))
+
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = "Summarized on: $formattedDate",
-                style = TextStyle(fontSize = 12.sp)
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TagsRow(tags: List<String>) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        items(tags.size) { tag ->
+            Text(
+                text = tags[tag],
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier
+                    .border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = MaterialTheme.shapes.small
+                    )
+                    .padding(4.dp)
             )
         }
     }
@@ -171,19 +200,34 @@ fun ArticleListScreenPreview() {
 }
 
 val dummyArticles = listOf(
-    Article(
+    ArticleUiModel(
         1,
-        "The Future of AI",
-        "https://example.com/ai"
+        title = "The Future of AI",
+        articleUrl = "https://example.com/ai",
+        favouriteArticles = true,
+        tags = listOf("AI", "Technology", "Future"),
+        imageUrl = "https://example.com/ai_image.jpg"
     ),
-    Article(
+    ArticleUiModel(
         2,
-        "Quantum Computing Explained",
-        "https://example.com/quantum"
+        title = "Quantum Computing Explained",
+        articleUrl = "https://example.com/quantum",
+        tags = listOf("Quantum Computing", "Physics", "Technology"),
+        imageUrl = "https://example.com/quantum_image.jpg"
     ),
-    Article(
+    ArticleUiModel(
         3,
-        "Sustainable Living Tips",
-        "https://example.com/sustainable"
+        title = "Sustainable Living Tips",
+        articleUrl = "https://example.com/sustainable",
+        tags = listOf(
+            "Sustainability",
+            "Lifestyle",
+            "Environment",
+            "Lifestyle",
+            "Environment",
+            "Lifestyle",
+            "Environment"
+        ),
+        imageUrl = "https://example.com/sustainable_image.jpg"
     )
 )

@@ -1,5 +1,6 @@
 package com.shekharhandigol.aiarticlesummarizer.util
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -10,8 +11,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.text.clear
-import kotlin.text.none
 
 
 fun getDayOfMonthSuffix(millis: Long): String {
@@ -24,23 +23,36 @@ fun getDayOfMonthSuffix(millis: Long): String {
     }
 }
 
-fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
-    return buildAnnotatedString {
+private const val MARKDOWN_LOG_TAG = "simpleMarkdown"
 
+fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
+    Log.d(MARKDOWN_LOG_TAG, "Before processing: $text")
+    return buildAnnotatedString {
+        Log.d(MARKDOWN_LOG_TAG, "Starting buildAnnotatedString")
         var currentIndex = 0
 
+        // Regex to match all supported markdown patterns,
+        // prioritizing more specific patterns like bold over generic italic,
+        // and handling newlines and list items separately if needed.
+        // The list item regex now specifically looks for a newline followed by '* ' or a line start with '* '
         val combinedRegex =
-            """(\*\*(.*?)\*\*)|(\*(.*?)\*)|(\_ (.*?)\_)|(\[([^\]]+)\]\(([^)]+)\))""".toRegex()
+            """(?m)(\*\*(.*?)\*\*)|(\*(.*?)\*)|(_(.*?)_)|(\[([^\]]+)]\(([^)]+)\))|((?:^|\n)\*\s+(.*))""".toRegex()
+        // Group 1: **bold** (2: content)
+        // Group 3: *italic* (4: content)
+        // Group 5: _italic_ (6: content)
+        // Group 7: [linkText](url) (8: linkText, 9: url)
+        // Group 10: List Item: (?:^|\n)\*\s+(.*) (11: content)
 
         combinedRegex.findAll(text).forEach { matchResult ->
             val matchStart = matchResult.range.first
             val matchEnd = matchResult.range.last + 1
 
-            // Append text before the match
+            // Append text before the current match
             if (matchStart > currentIndex) {
                 append(text.substring(currentIndex, matchStart))
             }
 
+            // Determine which markdown pattern matched
             when {
                 // Bold: **text**
                 matchResult.groups[1] != null -> {
@@ -73,15 +85,32 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
                             textDecoration = TextDecoration.Underline
                         )
                     )
-                    // Add an annotation for the URL, which can be retrieved for click handling
                     addStringAnnotation(
                         tag = "URL",
                         annotation = url,
-                        start = length, // current length of annotated string
+                        start = length,
                         end = length + linkText.length
                     )
                     append(linkText)
                     pop()
+                }
+                // List Item: (?:^|\n)* content
+                matchResult.groups[10] != null -> {
+                    // This handles the newline character if it was part of the match
+                    if (matchResult.value.startsWith("\n")) {
+                        append("\n")
+                    } else if (matchStart != 0) { // If it's not the very beginning, ensure a newline if it's a new list item
+                        append("\n")
+                    }
+
+                    pushStyle(SpanStyle(fontWeight = FontWeight.Bold)) // Bullet point style
+                    append("• ") // The desired bullet symbol
+                    pop()
+
+                    // Extract the content *after* the bullet marker for further processing
+                    val rawContent = matchResult.groups[11]!!.value
+                    // Process this raw content for nested markdown (bold, italic, link)
+                    append(simpleMarkdownToAnnotatedString(rawContent))
                 }
             }
             currentIndex = matchEnd
@@ -89,19 +118,29 @@ fun simpleMarkdownToAnnotatedString(text: String): AnnotatedString {
 
         // Append any remaining text after the last match
         if (currentIndex < text.length) {
+            Log.d(
+                MARKDOWN_LOG_TAG,
+                "Appending remaining text: ${text.substring(currentIndex)}"
+            )
             append(text.substring(currentIndex))
         }
+        Log.d(MARKDOWN_LOG_TAG, "Finished buildAnnotatedString")
+    }.also {
+        Log.d(MARKDOWN_LOG_TAG, "After processing, AnnotatedString: $it")
     }
 }
 
-enum class SummaryLength(val value: String) {
-    SHORT("Short"), MEDIUM("Medium"), LONG("Long"), FORMATTED("Formatted")
+enum class AppThemeOption {
+    SYSTEM_DEFAULT,
+    LIGHT,
+    DARK,
+    LIGHT_MEDIUM_CONTRAST,
+    LIGHT_HIGH_CONTRAST,
+    DARK_MEDIUM_CONTRAST,
+    DARK_HIGH_CONTRAST
 }
 
-enum class GeminiModelName(val value: String) {
-    GEMINI_PRO("gemini-pro"),
-    GEMINI_PRO_VISION("gemini-pro-vision"),
-    GEMINI_1_5_FLASH("gemini-1.5-flash"),
-    GEMINI_1_5_PRO("gemini-1.5-pro")
-
+fun AppThemeOption.toDisplayString(): String {
+    return this.name.replace("_", " ").lowercase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }
