@@ -1,9 +1,13 @@
 package com.shekharhandigol.aiarticlesummarizer.ui.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,7 +17,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +41,7 @@ import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import com.shekharhandigol.aiarticlesummarizer.util.toDisplayString
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainSettingsScreen(
@@ -44,6 +53,55 @@ fun MainSettingsScreen(
     val promptSettings = viewModel.promptSettings.collectAsStateWithLifecycle()
     val geminiModelName = viewModel.geminiModel.collectAsStateWithLifecycle()
     val themeName = viewModel.themeName.collectAsStateWithLifecycle()
+
+    val importResult = viewModel.importStatus.collectAsStateWithLifecycle()
+    val exportResult = viewModel.exportStatus.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(importResult.value, exportResult.value) {
+        val importStatus = importResult.value
+        val exportStatus = exportResult.value
+
+        val importMessage = if (importStatus.isNotBlank()) "Import: $importStatus" else ""
+        val exportMessage = if (exportStatus.isNotBlank()) "Export: $exportStatus" else ""
+
+        val message = when {
+            importMessage.isNotBlank() && exportMessage.isNotBlank() -> "$importMessage\n$exportMessage"
+            importMessage.isNotBlank() -> importMessage
+            exportMessage.isNotBlank() -> exportMessage
+            else -> ""
+        }
+        if (message.isNotBlank()) {
+            scope.launch {
+                snackbarHostState.showSnackbar(message)
+                viewModel.setStatus("")
+            }
+        }
+    }
+
+
+    // Launcher for picking a file to save (export)
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            viewModel.exportClicked(it)
+        } ?: run {
+            viewModel.setStatus("Export cancelled.")
+        }
+    }
+
+    // Launcher for picking a file to open (import)
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            viewModel.importClicked(it)
+        } ?: run {
+            viewModel.setStatus("Import cancelled.")
+        }
+    }
 
 
     LaunchedEffect(Unit) {
@@ -63,7 +121,12 @@ fun MainSettingsScreen(
             viewModel.setGeminiModel(geminiModel)
         },
         openThemesChooser = openThemesChooser,
-        openLoginPage = openSigninWithGoogle
+        openLoginPage = openSigninWithGoogle,
+        importClicked = { importLauncher.launch(arrayOf("application/json")) },
+        exportClicked = {
+            exportLauncher.launch("summaries_backup.json")
+        },
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -75,7 +138,10 @@ fun SettingsScreen(
     setSummaryLength: (SummaryType) -> Unit,
     onGeminiModelChange: (GeminiModelName) -> Unit,
     openThemesChooser: () -> Unit,
-    openLoginPage: () -> Unit
+    openLoginPage: () -> Unit,
+    importClicked: () -> Unit,
+    exportClicked: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     var summaryMenuExpanded by remember { mutableStateOf(false) }
     var geminiMenuExpanded by remember { mutableStateOf(false) }
@@ -85,8 +151,6 @@ fun SettingsScreen(
             .fillMaxSize()
             .padding(8.dp)
     ) {
-
-
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Summary Length", style = MaterialTheme.typography.titleMedium)
 
@@ -164,6 +228,36 @@ fun SettingsScreen(
 
                 )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = SpaceBetween,
+                verticalAlignment = CenterVertically
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        exportClicked()
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp)
+                ) {
+                    Text(text = "Export")
+                }
+                OutlinedButton(
+                    onClick = {
+                        importClicked()
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp)
+                ) {
+                    Text(text = "Import")
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
 
             OutlinedButton(
@@ -181,6 +275,10 @@ fun SettingsScreen(
             }
 
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState
+        )
     }
 }
 
@@ -198,6 +296,9 @@ fun PreviewSettingsScreen() {
         setSummaryLength = {},
         onGeminiModelChange = {},
         openThemesChooser = {},
-        openLoginPage = {}
+        openLoginPage = {},
+        importClicked = {},
+        exportClicked = {},
+        snackbarHostState = remember { SnackbarHostState() }
     )
 }

@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME
+import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME_SUMMARIES
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -74,6 +75,31 @@ interface ArticleDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSummaries(summaries: List<Summary>)
+
+
+    @Query("SELECT * FROM $DATABASE_NAME ORDER BY articleId DESC")
+    fun getAllArticlesList(): List<Article>
+
+    @Query("SELECT * FROM summaries")
+    suspend fun getAllSummaries(): List<Summary>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllArticles(articles: List<Article>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllSummaries(summaries: List<Summary>)
+
+    @Query("DELETE FROM $DATABASE_NAME")
+    suspend fun deleteAllArticles()
+
+    @Query("DELETE FROM $DATABASE_NAME_SUMMARIES")
+    suspend fun deleteAllSummaries()
+
+    @Transaction
+    suspend fun clearAllData() {
+        deleteAllArticles()
+        deleteAllSummaries()
+    }
 
 }
 

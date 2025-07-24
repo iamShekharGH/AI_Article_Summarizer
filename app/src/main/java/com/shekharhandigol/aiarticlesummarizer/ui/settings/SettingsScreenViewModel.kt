@@ -1,9 +1,13 @@
 package com.shekharhandigol.aiarticlesummarizer.ui.settings
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
 import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.ExportDataUseCase
+import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.ImportDataUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetGeminiModelUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetPromptSettingsUseCase
 import com.shekharhandigol.aiarticlesummarizer.domain.GetThemeNameUseCase
@@ -14,6 +18,7 @@ import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +30,8 @@ class SettingsScreenViewModel @Inject constructor(
     private val saveGeminiModelUseCase: SaveGeminiModelUseCase,
     private val getGeminiModelUseCase: GetGeminiModelUseCase,
     private val getThemeNameUseCase: GetThemeNameUseCase,
+    private val exportDataUseCase: ExportDataUseCase,
+    private val importDataUseCase: ImportDataUseCase,
     private val saveThemeNameUseCase: SaveThemeNameUseCase
 ) : ViewModel() {
 
@@ -36,6 +43,12 @@ class SettingsScreenViewModel @Inject constructor(
 
     private val _themeName = MutableStateFlow(AppThemeOption.SYSTEM_DEFAULT)
     val themeName = _themeName.asStateFlow()
+
+    private val _exportStatus = MutableStateFlow<String>("")
+    val exportStatus: StateFlow<String> = _exportStatus
+
+    private val _importStatus = MutableStateFlow<String>("")
+    val importStatus: StateFlow<String> = _importStatus
 
 
     fun saveSummariesPromptSettings(summaryType: SummaryType) {
@@ -77,6 +90,50 @@ class SettingsScreenViewModel @Inject constructor(
                 _themeName.value = result
             }
         }
+    }
+
+    fun importClicked(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            importDataUseCase(uri).collect { result ->
+                when (result) {
+                    is AiSummariserResult.Success -> {
+                        _importStatus.value = result.data
+                    }
+
+                    is AiSummariserResult.Error -> {
+                        _importStatus.value = result.exception.message ?: "Unknown error"
+                    }
+
+                    AiSummariserResult.Loading -> {
+                        _importStatus.value = "Loading..."
+                    }
+                }
+            }
+        }
+    }
+
+    fun exportClicked(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            exportDataUseCase(uri).collect { result ->
+                when (result) {
+                    is AiSummariserResult.Success -> {
+                        _exportStatus.value = result.data
+                    }
+
+                    is AiSummariserResult.Error -> {
+                        _exportStatus.value = result.exception.message ?: "Unknown error"
+                    }
+
+                    AiSummariserResult.Loading -> {
+                        _exportStatus.value = "Loading..."
+                    }
+                }
+            }
+        }
+    }
+
+    fun setStatus(string: String) {
+        _exportStatus.value = string
     }
 
     /*

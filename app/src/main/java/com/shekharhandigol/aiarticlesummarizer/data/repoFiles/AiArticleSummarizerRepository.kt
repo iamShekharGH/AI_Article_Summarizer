@@ -1,6 +1,7 @@
 package com.shekharhandigol.aiarticlesummarizer.data.repoFiles
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.core.graphics.createBitmap
 import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
 import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
@@ -19,7 +20,8 @@ import javax.inject.Singleton
 class AiArticleSummarizerRepository @Inject constructor(
     private val remoteArticlesGeminiDataSource: RemoteArticlesGeminiDataSource,
     private val localStorageDataSource: LocalStorageDataSource,
-    private val settingsDataSource: SettingsDataSource
+    private val settingsDataSource: SettingsDataSource,
+    private val localFileDataSource: LocalFileDataSource,
 ) {
     fun summarizeArticleAndBitmap(
         bitmap: Bitmap = createBitmap(1, 1),
@@ -38,6 +40,9 @@ class AiArticleSummarizerRepository @Inject constructor(
         text: String
     ): Flow<AiSummariserResult<String>> =
         remoteArticlesGeminiDataSource.summarizeArticleWithPrompt(prompt = prompt, text = text)
+
+    suspend fun generateTagsFromText(input: String) =
+        remoteArticlesGeminiDataSource.generateTags(input)
 
     fun getAllArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.getAllArticles()
@@ -94,7 +99,10 @@ class AiArticleSummarizerRepository @Inject constructor(
 
     fun getThemeName(): Flow<AppThemeOption> = settingsDataSource.getThemeName()
 
-    suspend fun generateTagsFromText(input: String) =
-        remoteArticlesGeminiDataSource.generateTags(input)
+    fun exportDataToFile(uri: Uri): Flow<AiSummariserResult<String>> =
+        localFileDataSource.exportDataToFile(uri = uri)
+
+    fun importDataFromFile(uri: Uri): Flow<AiSummariserResult<String>> =
+        localFileDataSource.importDataFromFile(uri = uri)
 
 }

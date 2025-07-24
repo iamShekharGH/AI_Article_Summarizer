@@ -2,6 +2,7 @@ package com.shekharhandigol.aiarticlesummarizer.util
 
 
 const val DATABASE_NAME = "ARTICLE_TABLE"
+const val DATABASE_NAME_SUMMARIES = "summaries"
 
 const val DATASTORE_FILE_NAME = "AI_ARTICLE_SUMMARISER_DATASTORE_FILE"
 const val DATASTORE_PROMPT_SETTINGS = "GEMINI_PROMPT_SETTINGS"

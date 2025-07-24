@@ -7,7 +7,10 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
 import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME
+import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME_SUMMARIES
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = DATABASE_NAME)
 @TypeConverters(Converters::class)
 data class Article(
@@ -23,8 +26,9 @@ data class Article(
 )
 
 
+@Serializable
 @Entity(
-    tableName = "summaries",
+    tableName = DATABASE_NAME_SUMMARIES,
     foreignKeys = [ForeignKey(
         entity = Article::class,
         parentColumns = ["articleId"],
@@ -32,6 +36,7 @@ data class Article(
         onDelete = ForeignKey.CASCADE
     )]
 )
+@TypeConverters(Converters::class)
 data class Summary(
     @PrimaryKey(autoGenerate = true)
     val summaryId: Int = 0,
@@ -60,9 +65,11 @@ class Converters {
     @TypeConverter
     fun toSummaryType(value: String): SummaryType {
         return try {
-            SummaryType.valueOf(value) // Convert string back to enum
+            SummaryType.entries.firstOrNull { it.name == value || it.displayName == value }
+                ?: SummaryType.UNKNOWN
+
         } catch (e: Exception) {
-            SummaryType.MEDIUM_SUMMARY // Default value if conversion fails
+            SummaryType.UNKNOWN
         }
     }
 }

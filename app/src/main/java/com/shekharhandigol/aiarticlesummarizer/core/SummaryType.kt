@@ -41,7 +41,11 @@ enum class SummaryType(val displayName: String, val prompt: String) {
     SIMPLIFY_COMPLEX_IDEA(
         "Simplify a Complex Idea",
         "Explain the most complex concept or idea from this article in simple terms, as if explaining it to a beginner. Avoid bullet points for this explanation."
-    )
+    ),
+    UNKNOWN(
+        "Unknown Summary Type",
+        "Unknown summary type. Please select a valid summary option."
+    ) // Added for robustness
 }
 
 
