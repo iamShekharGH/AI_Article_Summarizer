@@ -1,6 +1,7 @@
 package com.shekharhandigol.aiarticlesummarizer
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.shekharhandigol.aiarticlesummarizer.data.repoFiles.LocalFileDataSource
 import com.shekharhandigol.aiarticlesummarizer.database.ArticleDao
 import dagger.Module
@@ -39,4 +40,9 @@ object AppModule {
         )
     }
 
+    @Provides
+    @Singleton
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+        return WorkManager.getInstance(context)
+    }
 }
