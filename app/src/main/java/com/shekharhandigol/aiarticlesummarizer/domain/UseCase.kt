@@ -5,14 +5,10 @@ interface UseCase<in In, out Out> {
 }
 
 interface NoInputUseCase<out Out> : UseCase<Unit, Out> {
-
     suspend operator fun invoke(): Out
     override suspend operator fun invoke(input: Unit): Out = invoke()
-
 }
 
 interface NoOutputUseCase<in In> : UseCase<In, Unit> {
-
     override suspend operator fun invoke(input: In)
-
 }
