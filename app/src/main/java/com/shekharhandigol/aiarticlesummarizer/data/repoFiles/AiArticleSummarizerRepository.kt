@@ -1,21 +1,27 @@
 package com.shekharhandigol.aiarticlesummarizer.data.repoFiles
 
 import android.graphics.Bitmap
-import com.shekharhandigol.aiarticlesummarizer.database.Article
-import com.shekharhandigol.aiarticlesummarizer.database.ArticleWithSummaries
-import com.shekharhandigol.aiarticlesummarizer.util.GeminiModelName
-import com.shekharhandigol.aiarticlesummarizer.util.SummaryLength
+import android.net.Uri
+import androidx.core.graphics.createBitmap
+import com.shekharhandigol.aiarticlesummarizer.core.AiSummariserResult
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.ArticleWithSummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiJsoupResponseUiModel
+import com.shekharhandigol.aiarticlesummarizer.core.GeminiModelName
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryType
+import com.shekharhandigol.aiarticlesummarizer.core.SummaryUiModel
+import com.shekharhandigol.aiarticlesummarizer.util.AppThemeOption
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import androidx.core.graphics.createBitmap
 
 
 @Singleton
 class AiArticleSummarizerRepository @Inject constructor(
     private val remoteArticlesGeminiDataSource: RemoteArticlesGeminiDataSource,
     private val localStorageDataSource: LocalStorageDataSource,
-    private val settingsDataSource: SettingsDataSource
+    private val settingsDataSource: SettingsDataSource,
+    private val localFileDataSource: LocalFileDataSource,
 ) {
     fun summarizeArticleAndBitmap(
         bitmap: Bitmap = createBitmap(1, 1),
@@ -26,58 +32,77 @@ class AiArticleSummarizerRepository @Inject constructor(
 
     fun summarizeArticle(
         url: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> =
+    ): Flow<AiSummariserResult<GeminiJsoupResponseUiModel>> =
         remoteArticlesGeminiDataSource.summarizeArticle(url)
 
     fun summarizeArticleWithPrompt(
         prompt: String,
         text: String
-    ): Flow<AiSummariserResult<Pair<String, String>>> =
+    ): Flow<AiSummariserResult<String>> =
         remoteArticlesGeminiDataSource.summarizeArticleWithPrompt(prompt = prompt, text = text)
 
-    fun getAllArticles(): Flow<AiSummariserResult<List<Article>>> =
+    suspend fun generateTagsFromText(input: String) =
+        remoteArticlesGeminiDataSource.generateTags(input)
+
+    fun getAllArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.getAllArticles()
 
-    fun getAllFavoriteArticles(): Flow<AiSummariserResult<List<Article>>> =
+    fun getAllFavoriteArticles(): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.getAllFavoriteArticles()
+
+    fun getAllTags(): Flow<AiSummariserResult<List<String>>> =
+        localStorageDataSource.getAllTags()
+
+    fun getArticlesByTag(tag: String): Flow<AiSummariserResult<List<ArticleUiModel>>> =
+        localStorageDataSource.getArticlesByTag(tag)
 
     fun favouriteThisArticle(articleId: Int, currentFavouriteState: Boolean) {
         localStorageDataSource.favouriteThisArticle(articleId, currentFavouriteState)
     }
 
-    fun getArticleWithSummaries(articleId: Int): Flow<AiSummariserResult<ArticleWithSummaries>> =
+    fun getArticleWithSummaries(articleId: Int): Flow<AiSummariserResult<ArticleWithSummaryUiModel>> =
         localStorageDataSource.getArticleWithSummaries(articleId)
 
     fun insertArticleWithSummary(
-        url: String, title: String, summary: String
+        articleWithSummaryUiModel: ArticleWithSummaryUiModel
     ): Flow<AiSummariserResult<Long>> =
-        localStorageDataSource.insertArticleWithSummary(url, title, summary)
+        localStorageDataSource.insertArticleWithSummary(articleWithSummaryUiModel)
+
+    fun insertSummary(
+        summaryUiModel: SummaryUiModel
+    ): Flow<AiSummariserResult<Long>> =
+        localStorageDataSource.insertSummary(summaryUiModel)
 
 
-    fun searchArticles(query: String): Flow<AiSummariserResult<List<Article>>> =
+    fun searchArticles(query: String): Flow<AiSummariserResult<List<ArticleUiModel>>> =
         localStorageDataSource.searchArticles(query)
 
     suspend fun deleteArticleById(articleId: Int) =
         localStorageDataSource.deleteArticleById(articleId)
 
-    suspend fun savePromptSettings(summaryLength: SummaryLength) {
+    suspend fun savePromptSettings(summaryLength: SummaryType) {
         settingsDataSource.savePromptSettings(summaryLength)
     }
 
-    fun getPromptSettings(): Flow<SummaryLength> = settingsDataSource.getPromptSettings()
+    fun getPromptSettings(): Flow<SummaryType> = settingsDataSource.getPromptSettings()
 
-
-    fun getDarkModeValue(): Flow<Boolean> = settingsDataSource.getDarkModeValue()
-
-    suspend fun saveDarkModeValue(darkMode: Boolean) {
-        settingsDataSource.saveDarkModeValue(darkMode)
-
-    }
 
     suspend fun saveGeminiModel(modelName: GeminiModelName) {
         settingsDataSource.saveGeminiModel(modelName)
     }
 
     fun geminiModelNameFlow(): Flow<GeminiModelName> = settingsDataSource.geminiModelNameFlow()
+
+    suspend fun saveThemeName(themeName: AppThemeOption) {
+        settingsDataSource.saveThemeName(themeName)
+    }
+
+    fun getThemeName(): Flow<AppThemeOption> = settingsDataSource.getThemeName()
+
+    fun exportDataToFile(uri: Uri): Flow<AiSummariserResult<String>> =
+        localFileDataSource.exportDataToFile(uri = uri)
+
+    fun importDataFromFile(uri: Uri): Flow<AiSummariserResult<String>> =
+        localFileDataSource.importDataFromFile(uri = uri)
 
 }

@@ -3,25 +3,55 @@ package com.shekharhandigol.aiarticlesummarizer.database
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME
+import com.shekharhandigol.aiarticlesummarizer.util.DATABASE_NAME_SUMMARIES
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArticleDao {
 
-    @Query("SELECT * FROM $DATABASE_NAME")
-    fun getAllArticles(): List<Article>
+    @Query("SELECT * FROM $DATABASE_NAME ORDER BY articleId DESC")
+    fun getAllArticles(): Flow<List<Article>>
 
-    @Query("SELECT * FROM $DATABASE_NAME WHERE favouriteArticles = 1")
-    fun getAllFavoriteArticles(): List<Article>
+    @Query("SELECT * FROM $DATABASE_NAME WHERE favouriteArticles = 1 ORDER BY articleId DESC")
+    fun getAllFavoriteArticles(): Flow<List<Article>>
 
     @Query("SELECT * FROM $DATABASE_NAME WHERE articleId = :articleId")
     suspend fun getArticleById(articleId: Int): Article?
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArticle(article: Article) : Long
+
+    @Query("SELECT tags FROM $DATABASE_NAME WHERE tags IS NOT NULL AND tags != '' AND tags != '[]'")
+    fun getAllTagsFlow(): Flow<List<String>>
+
+    @Query("SELECT * FROM $DATABASE_NAME WHERE tags LIKE '%' || :tag || '%' ORDER BY articleId DESC")
+    fun getArticlesByTag(tag: String): Flow<List<Article>>
+
+
+    @Transaction
+    suspend fun insertArticleAndSummaries(article: Article, summaries: List<Summary>): Long {
+        val articleIdLong = insertArticle(article)
+        val articleIdInt = articleIdLong.toInt() // Convert Long to Int for Summary's articleId
+
+        val summariesWithArticleId = summaries.map { summary ->
+            Summary(
+                summaryId = summary.summaryId, // Keep original summaryId if needed for updates, or 0 for new
+                articleId = articleIdInt,
+                summaryText = summary.summaryText,
+                ogText = summary.ogText,
+                summaryType = summary.summaryType
+            )
+        }
+        if (summariesWithArticleId.isNotEmpty()) {
+            insertSummaries(summariesWithArticleId)
+        }
+        return articleIdLong
+    }
 
     @Delete
     suspend fun deleteArticle(article: Article)
@@ -31,7 +61,7 @@ interface ArticleDao {
 
     @Transaction
     @Query("SELECT * FROM $DATABASE_NAME WHERE articleId = :articleId")
-    suspend fun getArticleWithSummaries(articleId: Int): ArticleWithSummaries?
+    fun getArticleWithSummaries(articleId: Int): Flow<ArticleWithSummaries?>
 
 
     @Query("UPDATE $DATABASE_NAME SET favouriteArticles = 1 WHERE articleId = :articleId")
@@ -42,6 +72,34 @@ interface ArticleDao {
 
     @Query("SELECT * FROM $DATABASE_NAME WHERE title LIKE '%' || :query || '%' OR articleUrl LIKE '%' || :query || '%'")
     fun searchArticles(query: String): List<Article>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSummaries(summaries: List<Summary>)
+
+
+    @Query("SELECT * FROM $DATABASE_NAME ORDER BY articleId DESC")
+    fun getAllArticlesList(): List<Article>
+
+    @Query("SELECT * FROM summaries")
+    suspend fun getAllSummaries(): List<Summary>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllArticles(articles: List<Article>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllSummaries(summaries: List<Summary>)
+
+    @Query("DELETE FROM $DATABASE_NAME")
+    suspend fun deleteAllArticles()
+
+    @Query("DELETE FROM $DATABASE_NAME_SUMMARIES")
+    suspend fun deleteAllSummaries()
+
+    @Transaction
+    suspend fun clearAllData() {
+        deleteAllArticles()
+        deleteAllSummaries()
+    }
 
 }
 
