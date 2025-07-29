@@ -1,49 +1,54 @@
 [versions]
-agp = "8.10.1"
-coilCompose = "3.2.0"
+agp = "8.11.1"
+coilCompose = "3.3.0"
 datastorePreferences = "1.1.7"
-firebaseBom = "33.15.0"
-gson = "2.11.0"
-hiltAndroid = "2.56.2"
-jsoup = "1.20.1"
-junitJupiterEngine = "5.11.1"
-kotlin = "2.0.0"
+firebaseBom = "34.0.0"
+gson = "2.13.1"
+hiltAndroid = "2.57"
+hiltWork = "1.2.0"
+jsoup = "1.21.1"
+junitJupiterEngine = "5.13.4"
+kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
-mockk = "1.13.10"
-truth = "1.4.2"
+mockk = "1.14.5"
+truth = "1.4.4"
 kotlinxCoroutinesTest = "1.10.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.9.1"
+lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
-composeBom = "2025.06.00"
+composeBom = "2025.07.00"
 generativeai = "0.9.0"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 material = "1.12.0"
-navigationCompose = "2.9.0"
+navigationCompose = "2.9.2"
 playServicesDrive = "17.0.0"
-roomRuntime = "2.7.1"
+roomRuntime = "2.7.2"
 hiltNavigationCompose = "1.2.0"
-kotlinxSerializationJson = "1.8.1"
-kotlinSerialization = "2.0.21"
-uiTextGoogleFonts = "1.8.2"
-googleGmsGoogleServices = "4.4.2"
-googleFirebaseCrashlytics = "3.0.4"
-firebaseAuth = "23.2.1"
+kotlinxSerializationJson = "1.9.0"
+kotlinSerialization = "2.2.0"
+uiTextGoogleFonts = "1.8.3"
+googleGmsGoogleServices = "4.4.3"
+googleFirebaseCrashlytics = "3.0.5"
+firebaseAuth = "24.0.0"
 credentials = "1.5.0"
 googleid = "1.1.1"
-junitJupiter = "5.11.1"
+junitJupiter = "5.13.4"
+workRuntimeKtx = "2.10.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 firebase-ai = { module = "com.google.firebase:firebase-ai" }

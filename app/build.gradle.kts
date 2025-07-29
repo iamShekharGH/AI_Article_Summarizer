@@ -51,6 +51,10 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.androidx.hilt.compiler)
+    implementation(libs.androidx.work.runtime.ktx)
+
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.play.services.drive)
