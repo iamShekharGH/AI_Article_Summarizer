@@ -151,7 +151,9 @@ fun SummaryScreen(
     val summary = articleWithSummaries.summaryUiModel.first()
     val article = articleWithSummaries.articleUiModel
     val context = LocalContext.current
-    val intent = Intent(Intent.ACTION_VIEW, article.articleUrl.toUri())
+    val intent = remember(article.articleUrl) {
+        Intent(Intent.ACTION_VIEW, article.articleUrl.toUri())
+    }
     var expanded by remember { mutableStateOf(false) }
     var selectedSummaryType by remember { mutableStateOf(summary.summaryType) }
 
@@ -357,7 +359,6 @@ fun SummaryScreen(
                     }
 
                 }
-
                 item {
                     var showOriginalText by remember { mutableStateOf(false) }
                     Row(
@@ -398,7 +399,6 @@ fun SummaryScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-
                 item {
                     Button(
                         modifier = Modifier
@@ -466,5 +466,3 @@ fun PreviewSummaryScreen() {
         reSummarizeState = dummyReSummarizeState
     )
 }
-
-// Dummy data for preview
